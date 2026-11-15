@@ -96,20 +96,37 @@ const ID = {
 
   // projects
   "Things I've built": 'Yang sudah saya buat',
-  'Selected <em>projects</em>': 'Proyek <em>pilihan</em>',
-  'From AI that reads hand gestures to physics games that run offline.': 'Dari AI yang membaca gerakan tangan hingga game fisika yang bisa dimainkan offline.',
+  'Pick a <em>door.</em>': 'Pilih sebuah <em>pintu.</em>',
+  'Each one opens onto something I built. Two are open now. The others are locked while new projects are being built.':
+    'Setiap pintu membuka sesuatu yang saya buat. Dua sudah terbuka. Sisanya masih terkunci karena proyek barunya sedang dibuat.',
+  'open': 'terbuka',
+  'coming soon': 'segera hadir',
+  'Open the door to Mewing Academy': 'Buka pintu ke Mewing Academy',
+  'Open the door to ZeroSignal': 'Buka pintu ke ZeroSignal',
+  'Coming soon. This door is locked.': 'Segera hadir. Pintu ini masih terkunci.',
+  'Coming soon': 'Segera hadir',
+  'Being built': 'Sedang dibuat',
+  'This door is still locked. A new project is being built behind it.': 'Pintu ini masih terkunci. Proyek baru sedang dibuat di baliknya.',
   'AI · Education': 'AI · Edukasi',
   'Games · Full-stack': 'Game · Full-stack',
+
+  // project room
+  'Back to the hall': 'Kembali ke lorong',
+  'Live project': 'Proyek live',
+  'Built with': 'Dibuat dengan',
+  'Visit the live site': 'Kunjungi situsnya',
+  'View the code': 'Lihat kodenya',
+  'Home page of': 'Halaman utama',
   'An accessible, AI-powered learning playground for kids. Students answer with their hands: on-device camera AI reads their gestures, so learning stays inclusive for every ability.':
     'Tempat belajar berbasis AI yang ramah untuk anak-anak. Siswa menjawab dengan tangan: AI kamera di perangkat membaca gerakan mereka, sehingga belajar tetap inklusif untuk semua kemampuan.',
-  'A collection of fun, simple offline games for killing boredom. It includes a full-physics slingshot game with server-side scoring, so nobody can cheat the leaderboard.':
-    'Kumpulan game offline yang seru dan sederhana untuk mengusir bosan. Termasuk game ketapel dengan fisika penuh dan penilaian di sisi server, jadi tidak ada yang bisa curang di papan peringkat.',
-  "A website built from scratch with plain HTML, CSS and JavaScript. It's where I learned the fundamentals of layout, styling and interactivity.":
-    'Website yang dibangun dari nol dengan HTML, CSS, dan JavaScript murni. Di sinilah saya belajar dasar-dasar layout, styling, dan interaktivitas.',
-  'View on GitHub': 'Lihat di GitHub',
-  'Mewing Academy cover': 'Sampul Mewing Academy',
-  'ZeroSignal cover': 'Sampul ZeroSignal',
-  'MixWich cover': 'Sampul MixWich',
+  'Students answer questions with hand gestures': 'Siswa menjawab pertanyaan dengan gerakan tangan',
+  'The gesture AI runs on the device with MediaPipe': 'AI gerakannya berjalan langsung di perangkat dengan MediaPipe',
+  'Built so kids of every ability can take part': 'Dibuat agar anak dengan kemampuan apa pun bisa ikut belajar',
+  'A collection of quick arcade games for killing boredom, with real leaderboards. Every score is checked by the server, so nobody can cheat their way to the top.':
+    'Kumpulan game arcade singkat untuk mengusir bosan, lengkap dengan papan peringkat sungguhan. Setiap skor diperiksa server, jadi tidak ada yang bisa curang untuk jadi nomor satu.',
+  'Six arcade games, including a full-physics slingshot game': 'Enam game arcade, termasuk game ketapel dengan fisika penuh',
+  'Server-side score checks keep the leaderboard fair': 'Pemeriksaan skor di server menjaga papan peringkat tetap adil',
+  'Play straight away, and sign up only to save scores': 'Langsung main, dan daftar hanya jika ingin menyimpan skor',
 
   // achievements
   'Milestones': 'Pencapaian',

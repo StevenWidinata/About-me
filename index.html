@@ -242,37 +242,81 @@
         </div>
       </section>
 
-      <!-- ================= PROJECTS ================= -->
+      <!-- ================= PROJECTS: doors ================= -->
       <section class="section projects" id="projects" aria-labelledby="projects-title">
-        <div class="container">
+        <div class="container doors__head">
           <div class="section-head">
             <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Things I've built</p>
-            <h2 class="section-title" id="projects-title">Selected <em>projects</em></h2>
-            <p class="section-lead">From AI that reads hand gestures to physics games that run offline.</p>
+            <h2 class="section-title" id="projects-title">Pick a <em>door.</em></h2>
+            <p class="section-lead">Each one opens onto something I built. Two are open now. The others are locked while new projects are being built.</p>
           </div>
+          <p class="doors__count"><b>2</b> open<br><b>2</b> coming soon</p>
+        </div>
 
-          <div class="projects__grid">
-            <article class="tile project reveal">
-              <div class="project__cover"><img src="assets/covers/mewing-academy.svg" alt="Mewing Academy cover" width="800" height="500" loading="lazy"></div>
-              <p class="label">AI · Education</p>
-              <h3>Mewing Academy</h3>
-              <p>An accessible, AI-powered learning playground for kids. Students answer with their hands: on-device camera AI reads their gestures, so learning stays inclusive for every ability.</p>
-              <a class="project__link" href="https://github.com/stevenwidinata-sys/Mewing-Academy" target="_blank" rel="noopener">View on GitHub</a>
-            </article>
-            <article class="tile project reveal">
-              <div class="project__cover"><img src="assets/covers/zerosignal.svg" alt="ZeroSignal cover" width="800" height="500" loading="lazy"></div>
-              <p class="label">Games · Full-stack</p>
-              <h3>ZeroSignal</h3>
-              <p>A collection of fun, simple offline games for killing boredom. It includes a full-physics slingshot game with server-side scoring, so nobody can cheat the leaderboard.</p>
-              <a class="project__link" href="https://github.com/stevenwidinata-sys/ZeroSignal" target="_blank" rel="noopener">View on GitHub</a>
-            </article>
-            <article class="tile project reveal">
-              <div class="project__cover"><img src="assets/covers/mixwich.svg" alt="MixWich cover" width="800" height="500" loading="lazy"></div>
-              <p class="label">Web</p>
-              <h3>MixWich</h3>
-              <p>A website built from scratch with plain HTML, CSS and JavaScript. It's where I learned the fundamentals of layout, styling and interactivity.</p>
-              <a class="project__link" href="https://github.com/stevenwidinata-sys/MixWich" target="_blank" rel="noopener">View on GitHub</a>
-            </article>
+        <div class="hall">
+          <div class="hall__row">
+            <div class="slot slot--live">
+              <span class="sconce" aria-hidden="true"></span>
+              <button class="door door--walnut" type="button" data-project="mewing" aria-label="Open the door to Mewing Academy">
+                <span class="door__frame">
+                  <span class="door__inside" style="background-image: url('assets/covers/mewing-academy.jpg')"></span>
+                  <span class="door__leaf">
+                    <span class="door__panel door__panel--top"></span>
+                    <span class="door__panel door__panel--bot"></span>
+                    <span class="door__plate">Mewing Academy</span>
+                    <span class="door__knob"></span>
+                  </span>
+                </span>
+                <span class="door__spill" aria-hidden="true"></span>
+              </button>
+              <div class="caption"><h3>Mewing Academy</h3><p><span class="caption__dot" aria-hidden="true"></span>AI · Education</p></div>
+            </div>
+            <div class="slot slot--live">
+              <span class="sconce" aria-hidden="true"></span>
+              <button class="door door--oak" type="button" data-project="zero" aria-label="Open the door to ZeroSignal">
+                <span class="door__frame">
+                  <span class="door__inside" style="background-image: url('assets/covers/zerosignal.jpg')"></span>
+                  <span class="door__leaf">
+                    <span class="door__panel door__panel--top"></span>
+                    <span class="door__panel door__panel--bot"></span>
+                    <span class="door__plate">ZeroSignal</span>
+                    <span class="door__knob"></span>
+                  </span>
+                </span>
+                <span class="door__spill" aria-hidden="true"></span>
+              </button>
+              <div class="caption"><h3>ZeroSignal</h3><p><span class="caption__dot" aria-hidden="true"></span>Games · Full-stack</p></div>
+            </div>
+            <div class="slot slot--soon">
+              <span class="sconce" aria-hidden="true"></span>
+              <button class="door door--espresso" type="button" aria-label="Coming soon. This door is locked.">
+                <span class="door__frame">
+                  <span class="door__inside"></span>
+                  <span class="door__leaf">
+                    <span class="door__panel door__panel--top"></span>
+                    <span class="door__panel door__panel--bot"></span>
+                    <span class="door__plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>Coming soon</span></span>
+                    <span class="door__knob"></span>
+                  </span>
+                </span>
+              </button>
+              <div class="caption"><h3>Coming soon</h3><p><span class="caption__dot" aria-hidden="true"></span>Being built</p></div>
+            </div>
+            <div class="slot slot--soon">
+              <span class="sconce" aria-hidden="true"></span>
+              <button class="door door--slate" type="button" aria-label="Coming soon. This door is locked.">
+                <span class="door__frame">
+                  <span class="door__inside"></span>
+                  <span class="door__leaf">
+                    <span class="door__panel door__panel--top"></span>
+                    <span class="door__panel door__panel--bot"></span>
+                    <span class="door__plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>Coming soon</span></span>
+                    <span class="door__knob"></span>
+                  </span>
+                </span>
+              </button>
+              <div class="caption"><h3>Coming soon</h3><p><span class="caption__dot" aria-hidden="true"></span>Being built</p></div>
+            </div>
           </div>
         </div>
       </section>
@@ -386,6 +430,40 @@
       </div>
     </footer>
   </div>
+
+  <!-- Project room: opened by walking through a door -->
+  <dialog class="room" id="room" aria-labelledby="room-title">
+    <div class="room__inner">
+      <div class="room__top">
+        <button class="room__back" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+          Back to the hall
+        </button>
+        <span class="room__kind" data-room="kind"></span>
+      </div>
+      <div class="browser">
+        <div class="browser__bar"><span class="browser__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="browser__url" data-room="host"></span></div>
+        <img data-room="img" alt="" width="1200" height="750">
+      </div>
+      <div class="room__info">
+        <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Live project</p>
+        <h2 class="room__title" id="room-title" data-room="name"></h2>
+        <p class="room__desc" data-room="desc"></p>
+        <ul class="room__points" data-room="points"></ul>
+        <ul class="chips" data-room="tech" aria-label="Built with"></ul>
+        <div class="room__actions">
+          <a class="btn btn--solid" data-room="url" href="#" target="_blank" rel="noopener">
+            <span>Visit the live site</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
+          </a>
+          <a class="btn btn--ghost" data-room="code" href="#" target="_blank" rel="noopener">
+            <span>View the code</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </dialog>
 
   <div class="toast" role="status" aria-live="polite"></div>
 

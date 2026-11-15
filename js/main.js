@@ -48,6 +48,7 @@ const t = (s) => (lang === 'id' && ID[s]) || s;
     $('meta[name="description"]').content = meta.description;
     btn.textContent = id ? 'ID' : 'EN';
     btn.setAttribute('aria-label', id ? 'Ganti bahasa ke English' : 'Switch language to Bahasa Indonesia');
+    document.dispatchEvent(new Event('langchange'));
   };
 
   btn.addEventListener('click', () => {
@@ -313,6 +314,124 @@ $$('[data-year]').forEach((el) => { el.textContent = new Date().getFullYear(); }
     el.style.transitionDelay = `${Math.min(i, 4) * 80}ms`;
     io.observe(el);
   });
+})();
+
+/* ---------- Project doors: open the door, walk through, see the project ---------- */
+const PROJECTS = {
+  mewing: {
+    name: 'Mewing Academy',
+    kind: 'AI · Education',
+    img: 'assets/covers/mewing-academy.jpg',
+    host: 'mewing-academy-beta.vercel.app',
+    url: 'https://mewing-academy-beta.vercel.app',
+    code: 'https://github.com/stevenwidinata-sys/Mewing-Academy',
+    desc: 'An accessible, AI-powered learning playground for kids. Students answer with their hands: on-device camera AI reads their gestures, so learning stays inclusive for every ability.',
+    points: [
+      'Students answer questions with hand gestures',
+      'The gesture AI runs on the device with MediaPipe',
+      'Built so kids of every ability can take part',
+    ],
+    tech: ['React', 'TypeScript', 'MediaPipe', 'Express'],
+  },
+  zero: {
+    name: 'ZeroSignal',
+    kind: 'Games · Full-stack',
+    img: 'assets/covers/zerosignal.jpg',
+    host: 'zerosignal-three.vercel.app',
+    url: 'https://zerosignal-three.vercel.app',
+    code: 'https://github.com/stevenwidinata-sys/ZeroSignal',
+    desc: 'A collection of quick arcade games for killing boredom, with real leaderboards. Every score is checked by the server, so nobody can cheat their way to the top.',
+    points: [
+      'Six arcade games, including a full-physics slingshot game',
+      'Server-side score checks keep the leaderboard fair',
+      'Play straight away, and sign up only to save scores',
+    ],
+    tech: ['React', 'TypeScript', 'matter-js', 'Rust', 'PostgreSQL'],
+  },
+};
+
+(() => {
+  const room = $('#room');
+  if (!room) return;
+  const field = (k) => $(`[data-room="${k}"]`, room);
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  let current = null, portal = null, busy = false;
+
+  const fill = (id) => {
+    const p = PROJECTS[id];
+    field('kind').textContent = t(p.kind);
+    field('host').textContent = p.host;
+    field('img').src = p.img;
+    field('img').alt = `${t('Home page of')} ${p.name}`;
+    field('name').textContent = p.name;
+    field('desc').textContent = t(p.desc);
+    field('points').replaceChildren(...p.points.map((s) => Object.assign(document.createElement('li'), { textContent: t(s) })));
+    field('tech').replaceChildren(...p.tech.map((s) => Object.assign(document.createElement('li'), { textContent: s })));
+    field('url').href = p.url;
+    field('code').href = p.code;
+  };
+
+  // the door frame's box on screen, and the full screen, as keyframes
+  const frames = (door) => {
+    const r = $('.door__frame', door).getBoundingClientRect();
+    return [
+      { left: `${r.left}px`, top: `${r.top}px`, width: `${r.width}px`, height: `${r.height}px`, borderRadius: `${r.width / 2}px ${r.width / 2}px 2px 2px`, filter: 'brightness(.6)' },
+      { left: '0px', top: '0px', width: `${innerWidth}px`, height: `${innerHeight}px`, borderRadius: '0px', filter: 'brightness(1)' },
+    ];
+  };
+
+  const open = async (door) => {
+    if (busy) return;
+    busy = true;
+    current = door;
+    fill(door.dataset.project);
+    door.classList.add('is-open');
+    if (!reduceMotion && Element.prototype.animate) {
+      await wait(420);
+      const f = frames(door);
+      portal = document.createElement('div');
+      portal.className = 'portal';
+      portal.style.backgroundImage = `url("${PROJECTS[door.dataset.project].img}")`;
+      Object.assign(portal.style, f[0]);
+      document.body.append(portal);
+      await portal.animate(f, { duration: 850, easing: 'cubic-bezier(.7,0,.2,1)', fill: 'forwards' }).finished;
+    }
+    document.documentElement.classList.add('room-open');
+    room.showModal();
+    room.scrollTop = 0;
+    $('.room__back', room).focus({ preventScroll: true });
+    busy = false;
+  };
+
+  const close = async () => {
+    if (busy || !room.open) return;
+    busy = true;
+    room.classList.add('is-closing');
+    await wait(reduceMotion ? 0 : 280);
+    room.close();
+    room.classList.remove('is-closing');
+    document.documentElement.classList.remove('room-open');
+    if (portal) {
+      await portal.animate(frames(current).reverse(), { duration: 700, easing: 'cubic-bezier(.7,0,.2,1)', fill: 'forwards' }).finished;
+      portal.remove();
+      portal = null;
+    }
+    current.classList.remove('is-open');
+    current.focus({ preventScroll: true });
+    busy = false;
+  };
+
+  const rattle = (door) => {
+    door.classList.remove('is-rattling');
+    void door.offsetWidth;
+    door.classList.add('is-rattling');
+    toast(t('This door is still locked. A new project is being built behind it.'));
+  };
+
+  $$('.door').forEach((door) => door.addEventListener('click', () => (door.dataset.project ? open(door) : rattle(door))));
+  $('.room__back', room).addEventListener('click', close);
+  room.addEventListener('cancel', (e) => { e.preventDefault(); close(); });
+  document.addEventListener('langchange', () => { if (room.open && current) fill(current.dataset.project); });
 })();
 
 /* ---------- Easter egg: click the logo 5 times quickly for a meteor shower ---------- */
