@@ -16,7 +16,6 @@ const ID = {
   'About': 'Tentang',
   'Journey': 'Perjalanan',
   'Projects': 'Proyek',
-  'Achievements': 'Prestasi',
   'Contact': 'Kontak',
   'Toggle dark and light mode': 'Ganti mode gelap dan terang',
   'Open menu': 'Buka menu',
@@ -137,16 +136,12 @@ const ID = {
   'Server-side score checks keep the leaderboard fair': 'Pemeriksaan skor di server menjaga papan peringkat tetap adil',
   'Play straight away, and sign up only to save scores': 'Langsung main, dan daftar hanya jika ingin menyimpan skor',
 
-  // achievements
-  'Milestones': 'Pencapaian',
-  'Achievements &amp; <em>awards</em>': 'Prestasi &amp; <em>penghargaan</em>',
-  'Best Graduate': 'Lulusan Terbaik',
-  'Top graduate of junior high school, three years in a row.': 'Lulusan terbaik SMP, tiga tahun berturut-turut.',
-  'Mathematics Semifinalist': 'Semifinalis Matematika',
-  'Reached the semifinal of a grade 8 mathematics competition.': 'Mencapai babak semifinal kompetisi matematika kelas 8.',
-  'Oct 2024': 'Okt 2024',
-  "2nd Place, Boys' Volleyball": 'Juara 2 Voli Putra',
-  "Runner-up in the high school boys' volleyball tournament.": 'Juara kedua turnamen voli putra tingkat SMA.',
+  // at a glance
+  'At a glance': 'Sekilas',
+  'Best graduate in a row': 'Lulusan terbaik berturut-turut',
+  'Schools at the tournament I ran': 'Sekolah di turnamen yang saya kelola',
+  'Live projects online': 'Proyek yang sudah online',
+  'Campus roles at BINUS': 'Peran di kampus BINUS',
 
   // possibilities
   'Endless possibilities': 'Kemungkinan tanpa batas',
