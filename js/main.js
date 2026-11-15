@@ -13,7 +13,7 @@ const t = (s) => (lang === 'id' && ID[s]) || s;
   const norm = (s) => s.replace(/\s+/g, ' ').trim();
   const EN_META = { title: document.title, description: $('meta[name="description"]').content };
 
-  // 1. Elements whose inner markup is a key (e.g. headings with a gradient span)
+  // 1. Elements whose inner markup is a key (e.g. headings with an <em>)
   const els = $$('body *').filter((el) => el.children.length && !el.closest('svg, script') && ID[norm(el.innerHTML)]);
   els.forEach((el) => { el.dataset.i18nEl = ''; el._en = norm(el.innerHTML); });
 
@@ -131,28 +131,20 @@ const t = (s) => (lang === 'id' && ID[s]) || s;
 })();
 
 
-/* ---------- Star sky (whole page): drag & throw stars; color follows height (top = rose, bottom = emerald) ---------- */
+/* ---------- Star sky (whole page): drag & throw stars; most are bone white, some warm tan ---------- */
 (() => {
   const canvas = $('.sky');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const LINK = 130, REACH = 200, GRAB = 22;
-  let w, h, dpr, stars = [], base, top, bottom;
+  let w, h, dpr, stars = [], base, warm;
   const pointer = { x: -9999, y: -9999 };
   let held = null, prev = null;
 
   const triplet = (cs, k) => cs.getPropertyValue(k).split(',').map(Number);
   const readColors = () => {
     const cs = getComputedStyle(document.documentElement);
-    base = triplet(cs, '--star'); top = triplet(cs, '--star-top'); bottom = triplet(cs, '--star-bottom');
-  };
-  // middle band stays neutral; colour ramps in toward the edges
-  const colorFor = (y) => {
-    const t = (y / h - .5) * 2;                    // -1 top … 1 bottom
-    const k = Math.min(1, Math.max(0, (Math.abs(t) - .12) / .6));
-    const f = k * k * (3 - 2 * k);                 // smoothstep
-    const to = t < 0 ? top : bottom;
-    return base.map((v, i) => Math.round(v + (to[i] - v) * f));
+    base = triplet(cs, '--star').join(','); warm = triplet(cs, '--star-warm').join(',');
   };
 
   const resize = () => {
@@ -162,12 +154,12 @@ const t = (s) => (lang === 'id' && ID[s]) || s;
     canvas.width = w * dpr; canvas.height = h * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     if (ow) { stars.forEach((s) => { s.x *= w / ow; s.y *= h / oh; }); return; }
-    const count = Math.min(170, Math.round((w * h) / 8500));
+    const count = Math.min(140, Math.round((w * h) / 9500));
     const drift = reduceMotion ? 0 : .18;
     stars = Array.from({ length: count }, () => ({
       x: Math.random() * w, y: Math.random() * h,
       vx: 0, vy: 0, dx: (Math.random() - .5) * drift, dy: (Math.random() - .5) * drift,
-      r: Math.random() * 1.4 + .5, tw: Math.random() * Math.PI * 2,
+      r: Math.random() * 1.3 + .4, tw: Math.random() * Math.PI * 2, warm: Math.random() < .3,
     }));
   };
 
@@ -182,8 +174,8 @@ const t = (s) => (lang === 'id' && ID[s]) || s;
         if (s.y < 0 || s.y > h) { s.vy *= -.7; s.y = Math.min(h, Math.max(0, s.y)); s.dy *= -1; }
       }
       s.near = s === held ? 1 : Math.max(0, 1 - Math.hypot(s.x - pointer.x, s.y - pointer.y) / REACH);
-      s.c = colorFor(s.y).join(',');
-      const alpha = Math.min(1, .45 + .3 * Math.sin(t / 900 + s.tw) + s.near * .5);
+      s.c = s.warm || s === held ? warm : base;
+      const alpha = Math.min(1, .35 + .25 * Math.sin(t / 1100 + s.tw) + s.near * .55);
       const r = s.r + s.near * 1.4 + (s === held ? 2 : 0);
       if (s.near > .3 || s === held) { // halo
         ctx.beginPath(); ctx.arc(s.x, s.y, r * 4, 0, Math.PI * 2);
@@ -328,7 +320,7 @@ $$('[data-year]').forEach((el) => { el.textContent = new Date().getFullYear(); }
   const logo = $('.brand');
   let clicks = 0, timer;
   const shower = () => {
-    const colors = ['var(--cyan)', 'var(--violet)', 'var(--pink)', 'rgb(var(--star-top))', 'rgb(var(--star-bottom))'];
+    const colors = ['var(--accent)', 'var(--accent-2)', 'var(--brass-hi)', 'rgb(var(--star))', 'rgb(var(--star-warm))'];
     for (let i = 0; i < 28; i++) {
       const m = document.createElement('span');
       m.className = 'meteor';

@@ -17,7 +17,6 @@ const ID = {
   'Journey': 'Perjalanan',
   'Projects': 'Proyek',
   'Achievements': 'Prestasi',
-  'Next': 'Berikutnya',
   'Contact': 'Kontak',
   'Toggle dark and light mode': 'Ganti mode gelap dan terang',
   'Open menu': 'Buka menu',
@@ -26,29 +25,23 @@ const ID = {
   'You found the meteor shower! Make a wish.': 'Kamu menemukan hujan meteor! Buat permohonan.',
 
   // hero
-  'Information Technology student @ BINUS University': 'Mahasiswa Teknologi Informasi @ BINUS University',
   "Hi, I'm": 'Halo, saya',
-  "I lead, mentor and build. I'm a student who enjoys turning curiosity into projects, communities and new skills, one star at a time.":
-    'Saya memimpin, membimbing, dan membangun. Saya mahasiswa yang senang mengubah rasa ingin tahu menjadi proyek, komunitas, dan keterampilan baru, satu bintang demi satu bintang.',
+  'I lead, mentor and build. I turn curiosity into projects, communities and new skills, one star at a time.':
+    'Saya memimpin, membimbing, dan membangun. Saya mengubah rasa ingin tahu menjadi proyek, komunitas, dan keterampilan baru, satu bintang demi satu bintang.',
   'Explore my journey': 'Jelajahi perjalanan saya',
   'Download CV': 'Unduh CV',
-  '✦ Leadership': '✦ Kepemimpinan',
-  '⌘ Problem Solving': '⌘ Pemecahan Masalah',
-  'Scroll to explore': 'Gulir untuk menjelajah',
   'Psst, try dragging the stars.': 'Psst, coba tarik bintang-bintangnya.',
+  'Steven looking out at the sea': 'Steven memandang ke arah laut',
 
   // about
   'Who I am': 'Tentang saya',
-  'A curious mind that <span class="grad-text">likes to lead</span>': 'Pikiran penasaran yang <span class="grad-text">suka memimpin</span>',
+  'A curious mind that <em>likes to lead</em>': 'Pikiran penasaran yang <em>suka memimpin</em>',
   [`I'm <strong>Steven Widinata</strong>, a <strong>Master of Information Technology (MIT)</strong> student at <strong>BINUS University</strong>. I keep asking "how does this work?" and then I go and build it.`]:
     'Saya <strong>Steven Widinata</strong>, mahasiswa <strong>Master of Information Technology (MIT)</strong> di <strong>BINUS University</strong>. Saya selalu bertanya "bagaimana cara kerjanya?", lalu mencoba membangunnya sendiri.',
   'At school I organised tournaments and led a volleyball committee. At university I learn competitive programming with <strong>Jollybee</strong>, build web apps with React and Node in <strong>Ureeka</strong>, guide new students as a <strong>Freshman Leader &amp; Partner</strong>, and mentor them academically at <strong>SASC</strong>.':
     'Di sekolah saya menyelenggarakan turnamen dan memimpin panitia voli. Di kampus saya belajar competitive programming di <strong>Jollybee</strong>, membangun aplikasi web dengan React dan Node di <strong>Ureeka</strong>, membimbing mahasiswa baru sebagai <strong>Freshman Leader &amp; Partner</strong>, dan menjadi mentor akademik di <strong>SASC</strong>.',
   "To me, every new skill is a star. Connect enough of them and you start to see the shape of what's possible.":
     'Bagi saya, setiap keterampilan baru adalah sebuah bintang. Hubungkan cukup banyak, dan bentuk dari semua kemungkinan mulai terlihat.',
-  'Campus organisations': 'Organisasi kampus',
-  'Projects built': 'Proyek dibuat',
-  'Awards': 'Penghargaan',
   'Profile overview': 'Ringkasan profil',
   'Profile': 'Profil',
   'Study': 'Studi',
@@ -71,7 +64,7 @@ const ID = {
 
   // journey
   'My journey': 'Perjalanan saya',
-  'Connecting the <span class="grad-text">stars</span>': 'Menghubungkan <span class="grad-text">bintang-bintang</span>',
+  'Connecting the <em>stars</em>': 'Menghubungkan <em>bintang-bintang</em>',
   'Each chapter is a star. Scroll down and watch the constellation take shape.': 'Setiap bab adalah sebuah bintang. Gulir ke bawah dan lihat rasi bintangnya terbentuk.',
   'Elementary': 'SD',
   'Junior High': 'SMP',
@@ -103,7 +96,7 @@ const ID = {
 
   // projects
   "Things I've built": 'Yang sudah saya buat',
-  'Selected <span class="grad-text">projects</span>': 'Proyek <span class="grad-text">pilihan</span>',
+  'Selected <em>projects</em>': 'Proyek <em>pilihan</em>',
   'From AI that reads hand gestures to physics games that run offline.': 'Dari AI yang membaca gerakan tangan hingga game fisika yang bisa dimainkan offline.',
   'AI · Education': 'AI · Edukasi',
   'Games · Full-stack': 'Game · Full-stack',
@@ -120,7 +113,7 @@ const ID = {
 
   // achievements
   'Milestones': 'Pencapaian',
-  'Achievements &amp; <span class="grad-text">awards</span>': 'Prestasi &amp; <span class="grad-text">penghargaan</span>',
+  'Achievements &amp; <em>awards</em>': 'Prestasi &amp; <em>penghargaan</em>',
   'Best Graduate': 'Lulusan Terbaik',
   'Top graduate of junior high school, three years in a row.': 'Lulusan terbaik SMP, tiga tahun berturut-turut.',
   'Mathematics Semifinalist': 'Semifinalis Matematika',
@@ -131,7 +124,7 @@ const ID = {
 
   // possibilities
   'Endless possibilities': 'Kemungkinan tanpa batas',
-  [`Where I'm <span class="grad-text">heading next</span>`]: 'Ke mana saya <span class="grad-text">melangkah</span>',
+  "Where I'm <em>heading next</em>": 'Ke mana saya <em>melangkah</em>',
   "The constellation isn't finished. These are the stars I'm reaching for now.": 'Rasi bintang ini belum selesai. Inilah bintang-bintang yang sedang saya kejar.',
   'AI that helps people': 'AI yang membantu sesama',
   'Go deeper into AI and machine learning, and build tools like Mewing Academy that make technology more accessible and inclusive.':
@@ -148,7 +141,7 @@ const ID = {
 
   // contact & footer
   'Get in touch': 'Hubungi saya',
-  [`Let's connect<br>the <span class="grad-text">next star.</span>`]: 'Mari hubungkan<br><span class="grad-text">bintang berikutnya.</span>',
+  "Let's connect<br>the <em>next star.</em>": 'Mari hubungkan<br><em>bintang berikutnya.</em>',
   'Want to collaborate, chat about tech, or just say hi? My inbox and DMs are always open.':
     'Mau berkolaborasi, ngobrol soal teknologi, atau sekadar menyapa? Inbox dan DM saya selalu terbuka.',
   'Say hello': 'Sapa saya',
