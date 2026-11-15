@@ -24,6 +24,15 @@ const ID = {
   'Copied to clipboard': 'Disalin ke clipboard',
   'You found the meteor shower! Make a wish.': 'Kamu menemukan hujan meteor! Buat permohonan.',
 
+  // intro
+  'Welcome': 'Selamat datang',
+  'Steven Widinata · Portfolio': 'Steven Widinata · Portofolio',
+  'Skip intro': 'Lewati intro',
+  'Start my journey': 'Mulai perjalanan saya',
+  'Move your cursor through the stars': 'Gerakkan kursor di antara bintang',
+  'Touch the stars': 'Sentuh bintang-bintangnya',
+  'Replay intro': 'Putar ulang intro',
+
   // hero
   "Hi, I'm": 'Halo, saya',
   'I lead, mentor and build. I turn curiosity into projects, communities and new skills, one star at a time.':

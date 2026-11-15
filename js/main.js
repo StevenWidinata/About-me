@@ -203,7 +203,8 @@ const t = (s) => (lang === 'id' && ID[s]) || s;
   };
 
   let running = false;
-  const loop = (t) => { if (!running) return; draw(t); requestAnimationFrame(loop); };
+  // skip drawing while the intro covers the page
+  const loop = (t) => { if (!running) return; if (!document.documentElement.classList.contains('intro-on')) draw(t); requestAnimationFrame(loop); };
   const start = () => { if (!running && !document.hidden) { running = true; requestAnimationFrame(loop); } };
   document.addEventListener('visibilitychange', () => (document.hidden ? (running = false) : start()));
 

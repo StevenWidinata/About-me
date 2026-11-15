@@ -19,19 +19,43 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <script>
-    // Apply saved/system theme before first paint to avoid a flash
+    // Apply saved/system theme before first paint to avoid a flash,
+    // and decide whether the 3D intro plays (once per session, not for #links or reduced motion)
     (function () {
-      var d = document.documentElement, t = null;
+      var d = document.documentElement, t = null, seen = false;
       try { t = localStorage.getItem('theme'); } catch (e) {}
+      try { seen = sessionStorage.getItem('introSeen') === '1'; } catch (e) {}
       d.dataset.theme = t || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
       d.classList.add('js');
+      if (!seen && location.hash.length < 2 && !matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('intro-on');
     })();
   </script>
 </head>
 <body>
+  <!-- ================= INTRO: stars form my name, then warp into the site ================= -->
+  <div class="intro" role="dialog" aria-modal="true" aria-label="Welcome">
+    <canvas class="intro__canvas" aria-hidden="true"></canvas>
+    <p class="intro__name" aria-hidden="true">Steven<br><em>Widinata</em></p>
+    <div class="intro__top">
+      <span>Steven Widinata · Portfolio</span>
+      <button class="intro__skip" type="button">Skip intro</button>
+    </div>
+    <div class="intro__bottom">
+      <p class="intro__tag">Curious Mind, Endless Possibilities.</p>
+      <button class="intro__start" type="button">
+        <span>Start my journey</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+      <p class="intro__hint intro__hint--mouse">Move your cursor through the stars</p>
+      <p class="intro__hint intro__hint--touch">Touch the stars</p>
+    </div>
+  </div>
+  <div class="flash" aria-hidden="true"></div>
+
   <canvas class="sky" aria-hidden="true"></canvas>
 
   <div class="site">
@@ -426,7 +450,10 @@
       <div class="container footer__inner">
         <p>© <span data-year>2026</span> Steven Widinata · Curious Mind, Endless Possibilities.</p>
         <p class="footer__built">Hand-crafted with HTML, CSS &amp; JavaScript</p>
-        <a class="footer__top" href="#top">Back to top ↑</a>
+        <div class="footer__links">
+          <button class="footer__replay" type="button">Replay intro</button>
+          <a class="footer__top" href="#top">Back to top ↑</a>
+        </div>
       </div>
     </footer>
   </div>
@@ -469,5 +496,6 @@
 
   <script src="js/i18n.js" defer></script>
   <script src="js/main.js" defer></script>
+  <script src="js/intro.js" defer></script>
 </body>
 </html>
