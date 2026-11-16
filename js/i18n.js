@@ -122,6 +122,7 @@ const ID = {
   'Open the door to Glitch Type': 'Buka pintu ke Glitch Type',
   'Games · Typing': 'Game · Mengetik',
 
+  'Swipe': 'Geser',
   'More work': 'Karya lainnya',
   'Turns your notes and PDFs into AI quizzes that explain every answer.': 'Mengubah catatan dan PDF menjadi kuis AI yang menjelaskan setiap jawaban.',
   'One launchpad for AI tools: write a prompt once, send it to any AI.': 'Satu peluncur untuk alat AI: tulis prompt sekali, kirim ke AI mana pun.',

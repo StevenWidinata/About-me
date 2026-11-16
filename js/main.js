@@ -476,3 +476,13 @@ const PROJECTS = {
     if (++clicks === 5) { clicks = 0; if (!reduceMotion) shower(); else toast(t('You found the meteor shower! Make a wish.')); }
   });
 })();
+
+/* ---------- Door row on phones: hide the swipe hint once used, drop the edge fade at the end ---------- */
+(() => {
+  const hall = $('.hall'), row = $('.hall__row');
+  if (!hall || !row) return;
+  row.addEventListener('scroll', () => {
+    hall.classList.add('is-scrolled');
+    hall.classList.toggle('is-end', row.scrollLeft + row.clientWidth >= row.scrollWidth - 8);
+  }, { passive: true });
+})();

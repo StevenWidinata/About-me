@@ -675,7 +675,30 @@ html.intro-on .reveal-in { animation: none; opacity: 0; }
   .hall__row::-webkit-scrollbar { display: none; }
   .slot { scroll-snap-align: center; }
   .door { max-width: 170px; }
+  /* fade the right edge so the next door reads as "more this way" */
+  .hall__row { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 3.5rem), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 3.5rem), transparent); }
+  .hall.is-end .hall__row { -webkit-mask-image: none; mask-image: none; }
 }
+
+/* phone-only swipe hint, hidden after the first scroll */
+.hall__hint {
+  display: none;
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 2;
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--night-muted);
+  transition: opacity .4s;
+}
+.hall__hint span { display: inline-block; color: var(--brass-hi); }
+@media (prefers-reduced-motion: no-preference) { .hall__hint span { animation: nudge 1.6s var(--ease) infinite; } }
+@keyframes nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
+.hall.is-scrolled .hall__hint { opacity: 0; }
+@media (max-width: 860px) { .hall__hint { display: block; } }
 
 .slot { position: relative; display: flex; flex-direction: column; align-items: center; min-width: 0; }
 /* lamp light washing down the wall */
