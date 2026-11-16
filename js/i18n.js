@@ -105,8 +105,8 @@ const ID = {
   // projects
   "Things I've built": 'Yang sudah saya buat',
   'Pick a <em>door.</em>': 'Pilih sebuah <em>pintu.</em>',
-  'Each one opens onto something I built. Two are open now. The others are locked while new projects are being built.':
-    'Setiap pintu membuka sesuatu yang saya buat. Dua sudah terbuka. Sisanya masih terkunci karena proyek barunya sedang dibuat.',
+  'Each one opens onto something I built. Three are open now. The last one stays locked while my next project is being built.':
+    'Setiap pintu membuka sesuatu yang saya buat. Tiga sudah terbuka. Pintu terakhir masih terkunci karena proyek berikutnya sedang saya buat.',
   'open': 'terbuka',
   'coming soon': 'segera hadir',
   'Open the door to Mewing Academy': 'Buka pintu ke Mewing Academy',
@@ -117,6 +117,8 @@ const ID = {
   'This door is still locked. A new project is being built behind it.': 'Pintu ini masih terkunci. Proyek baru sedang dibuat di baliknya.',
   'AI · Education': 'AI · Edukasi',
   'Games · Full-stack': 'Game · Full-stack',
+  'Open the door to Glitch Type': 'Buka pintu ke Glitch Type',
+  'Games · Typing': 'Game · Mengetik',
 
   // project room
   'Back to the hall': 'Kembali ke lorong',
@@ -135,6 +137,11 @@ const ID = {
   'Six arcade games, including a full-physics slingshot game': 'Enam game arcade, termasuk game ketapel dengan fisika penuh',
   'Server-side score checks keep the leaderboard fair': 'Pemeriksaan skor di server menjaga papan peringkat tetap adil',
   'Play straight away, and sign up only to save scores': 'Langsung main, dan daftar hanya jika ingin menyimpan skor',
+  'A neon typing trainer that plays like an arcade. Shoot down word asteroids from a black hole or repair a corrupted transmission before it breaks. No login: everything runs in the browser.':
+    'Latihan mengetik bertema neon yang dimainkan seperti game arcade. Tembak jatuh asteroid kata dari lubang hitam, atau perbaiki transmisi yang rusak sebelum hancur. Tanpa login: semuanya berjalan di browser.',
+  'Pick a mode by grabbing a crate with a claw machine': 'Pilih mode dengan mengambil peti memakai mesin capit',
+  'A daily challenge, plus stats with a weak-key heatmap': 'Tantangan harian, plus statistik dengan peta tombol yang masih lemah',
+  'Words in English and Bahasa Indonesia': 'Kata-kata dalam bahasa Inggris dan Bahasa Indonesia',
 
   // at a glance
   'At a glance': 'Sekilas',

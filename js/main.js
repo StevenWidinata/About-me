@@ -349,6 +349,21 @@ const PROJECTS = {
     ],
     tech: ['React', 'TypeScript', 'matter-js', 'Rust', 'PostgreSQL'],
   },
+  glitch: {
+    name: 'Glitch Type',
+    kind: 'Games · Typing',
+    img: 'assets/covers/glitch-type.jpg',
+    host: 'glitch-type.vercel.app',
+    url: 'https://glitch-type.vercel.app',
+    code: 'https://github.com/stevenwidinata-sys/glitch_type',
+    desc: 'A neon typing trainer that plays like an arcade. Shoot down word asteroids from a black hole or repair a corrupted transmission before it breaks. No login: everything runs in the browser.',
+    points: [
+      'Pick a mode by grabbing a crate with a claw machine',
+      'A daily challenge, plus stats with a weak-key heatmap',
+      'Words in English and Bahasa Indonesia',
+    ],
+    tech: ['TypeScript', 'Vite', 'Canvas 2D', 'Web Audio', 'matter-js'],
+  },
 };
 
 (() => {
