@@ -120,6 +120,13 @@ const ID = {
   'Open the door to Glitch Type': 'Buka pintu ke Glitch Type',
   'Games · Typing': 'Game · Mengetik',
 
+  'More work': 'Karya lainnya',
+  'Turns your notes and PDFs into AI quizzes that explain every answer.': 'Mengubah catatan dan PDF menjadi kuis AI yang menjelaskan setiap jawaban.',
+  'One launchpad for AI tools: write a prompt once, send it to any AI.': 'Satu peluncur untuk alat AI: tulis prompt sekali, kirim ke AI mana pun.',
+  'A phone-friendly list of 60+ daily web games, with tier lists.': 'Daftar 60+ game web harian yang nyaman di HP, lengkap dengan tier list.',
+  'Bookkeeping for a small shop: stock, sales, debts and monthly reports.': 'Pembukuan untuk toko kecil: stok, penjualan, hutang, dan laporan bulanan.',
+  'Code ↗': 'Kode ↗',
+
   // project room
   'Back to the hall': 'Kembali ke lorong',
   'Live project': 'Proyek live',
