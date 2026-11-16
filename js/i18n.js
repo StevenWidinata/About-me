@@ -100,6 +100,15 @@ const ID = {
   'Scholarship Mentor · SASC': 'Mentor Beasiswa · SASC',
   'Academic and personal mentor for new students for a full semester. I prepare learning material and practice questions, and host weekly interactive discussions.':
     'Mentor akademik dan personal bagi mahasiswa baru selama satu semester. Saya menyusun materi pembelajaran dan latihan soal, serta mengadakan sesi diskusi interaktif setiap minggu.',
+  '<strong>Team project:</strong> the Ureeka learning platform. I built the login page, module pages, routing and the Ask AI module.':
+    '<strong>Proyek tim:</strong> platform belajar Ureeka. Saya membuat halaman login, halaman modul, routing, dan modul Ask AI.',
+  'Teamwork': 'Kerja tim',
+  'Team builds': 'Proyek tim',
+  'Projects I worked on with friends outside class.': 'Proyek yang saya kerjakan bersama teman di luar kelas.',
+  '<strong>TrustPed</strong>: an ML tool that checks online stores for fraud. I built the React frontend and connected it to the FastAPI backend.':
+    '<strong>TrustPed</strong>: alat ML yang memeriksa toko online dari risiko penipuan. Saya membuat frontend React dan menghubungkannya ke backend FastAPI.',
+  '<strong>Reelo</strong>: an Android app that counts the reels you watch. I planned the app and its features with Oneill.':
+    '<strong>Reelo</strong>: aplikasi Android yang menghitung reels yang kamu tonton. Saya merencanakan aplikasi dan fiturnya bersama Oneill.',
   'To be continued →': 'Bersambung →',
 
   // projects
