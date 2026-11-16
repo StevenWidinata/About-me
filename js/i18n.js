@@ -36,7 +36,7 @@ const ID = {
   "Hi, I'm": 'Halo, saya',
   'I lead, mentor and build. I turn curiosity into projects, communities and new skills, one star at a time.':
     'Saya memimpin, membimbing, dan membangun. Saya mengubah rasa ingin tahu menjadi proyek, komunitas, dan keterampilan baru, satu bintang demi satu bintang.',
-  'Explore my journey': 'Jelajahi perjalanan saya',
+  'See my work': 'Lihat karya saya',
   'Download CV': 'Unduh CV',
   'Psst, try dragging the stars.': 'Psst, coba tarik bintang-bintangnya.',
   'Steven looking out at the sea': 'Steven memandang ke arah laut',
