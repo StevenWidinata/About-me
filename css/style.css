@@ -606,6 +606,13 @@ html.intro-on .reveal-in { animation: none; opacity: 0; }
 .timeline__points li { position: relative; padding-left: 1.1rem; }
 .timeline__points li::before { content: ""; position: absolute; left: 0; top: .7em; width: 5px; height: 5px; background: var(--accent); transform: rotate(45deg); }
 .timeline__points strong { color: var(--text); font-weight: 500; }
+/* school years: three schools folded into one card */
+.schools { margin-top: 1rem; }
+.schools div { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 1rem; padding-block: .8rem; border-top: 1px solid var(--border); }
+.schools dt { padding-top: .35rem; font-family: var(--font-mono); font-size: .74rem; letter-spacing: .08em; color: var(--muted); }
+.schools__name { display: block; font-family: var(--font-display); font-size: 1.3rem; line-height: 1.2; }
+.schools__note { display: block; margin-top: .2rem; color: var(--muted); font-size: .95rem; }
+@media (max-width: 520px) { .schools div { grid-template-columns: minmax(0, 1fr); gap: .15rem; } .schools dt { padding-top: 0; } }
 
 .timeline__item--chapter { padding-block: 1rem; }
 .timeline__item--chapter .timeline__star { top: 50%; }

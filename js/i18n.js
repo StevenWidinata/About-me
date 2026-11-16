@@ -74,20 +74,13 @@ const ID = {
   'My journey': 'Perjalanan saya',
   'Connecting the <em>stars</em>': 'Menghubungkan <em>bintang-bintang</em>',
   'Each chapter is a star. Scroll down and watch the constellation take shape.': 'Setiap bab adalah sebuah bintang. Gulir ke bawah dan lihat rasi bintangnya terbentuk.',
-  'Elementary': 'SD',
-  'Junior High': 'SMP',
-  'Senior High': 'SMA',
-  'Where the curiosity started: lots of questions, lots of numbers, and my first friends.':
-    'Tempat rasa ingin tahu saya dimulai: banyak pertanyaan, banyak angka, dan teman-teman pertama saya.',
-  'I learned that consistency pays off.': 'Di sini saya belajar bahwa konsistensi selalu membuahkan hasil.',
-  'Best graduate, three years in a row': 'Lulusan terbaik, tiga tahun berturut-turut',
-  'Semifinalist in a grade 8 mathematics competition': 'Semifinalis kompetisi matematika kelas 8',
-  'My first taste of leading people and running real events.': 'Pengalaman pertama saya memimpin orang dan menjalankan acara sungguhan.',
-  '<strong>Table Tennis Committee</strong> (2023–2024): planned and ran a tournament with 9 participating schools, keeping it fair and sporting':
-    '<strong>Panitia Tenis Meja</strong> (2023–2024): merencanakan dan menjalankan turnamen yang diikuti 9 sekolah, serta menjaga sportivitas selama acara',
-  '<strong>Volleyball Committee Leader</strong> (2024–2025): managed the budget, sourced competition-standard equipment and kept every match on schedule':
-    '<strong>Ketua Panitia Voli</strong> (2024–2025): menyusun anggaran, mengadakan perlengkapan sesuai standar kompetisi, dan memastikan setiap pertandingan tepat waktu',
-  "2nd place, boys' volleyball at the BHK Cup (Oct 2024)": 'Juara 2 lomba voli putra SMA di BHK Cup (Okt 2024)',
+  'School': 'Sekolah',
+  'School years': 'Masa sekolah',
+  'Where the curiosity started, and where I first learned to lead.': 'Tempat rasa ingin tahu saya dimulai, dan tempat saya pertama kali belajar memimpin.',
+  'Lots of questions, lots of numbers, and my first friends.': 'Banyak pertanyaan, banyak angka, dan teman-teman pertama saya.',
+  'Best graduate three years in a row, and a grade 8 math competition semifinalist.': 'Lulusan terbaik tiga tahun berturut-turut, dan semifinalis kompetisi matematika kelas 8.',
+  'Ran a table tennis tournament for 9 schools, led the volleyball committee and its budget, and took 2nd place at the BHK Cup.':
+    'Menjalankan turnamen tenis meja untuk 9 sekolah, memimpin panitia voli beserta anggarannya, dan meraih juara 2 di BHK Cup.',
   '2026 – now': '2026 – sekarang',
   'Sharpened my logic and problem solving through competitive programming, and built strong foundations in programming and algorithms.':
     'Mengasah logika dan pemecahan masalah melalui competitive programming, serta menguasai dasar pemrograman dan algoritma.',
