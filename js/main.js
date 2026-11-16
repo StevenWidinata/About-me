@@ -343,8 +343,9 @@ const PROJECTS = {
     code: 'https://github.com/stevenwidinata-sys/ZeroSignal',
     desc: 'A collection of quick arcade games for killing boredom, with real leaderboards. Every score is checked by the server, so nobody can cheat their way to the top.',
     points: [
-      'Six arcade games, including a full-physics slingshot game',
-      'Server-side score checks keep the leaderboard fair',
+      'Nine games, from a full-physics slingshot game to Chess and Snake',
+      'Play Chess and Sonar online against a friend',
+      'The server replays every move, so the leaderboard stays fair',
       'Play straight away, and sign up only to save scores',
     ],
     tech: ['React', 'TypeScript', 'matter-js', 'Rust', 'PostgreSQL'],
