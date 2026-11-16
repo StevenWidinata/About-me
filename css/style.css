@@ -151,6 +151,9 @@ strong { font-weight: 600; }
   text-transform: uppercase;
   color: var(--muted);
 }
+/* section number in place of the dot: "01 —— WHO I AM" */
+.eyebrow__num { display: inline-flex; align-items: center; gap: .65rem; color: var(--accent); }
+.eyebrow__num::after { content: ""; width: 1.5rem; height: 1px; background: var(--border-strong); }
 .dot {
   display: inline-block;
   flex: none;
@@ -533,7 +536,9 @@ html.intro-on .reveal-in { animation: none; opacity: 0; }
 .profile-list dd { display: flex; align-items: center; gap: .6rem; font-size: .95rem; }
 
 .strengths { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 1.5rem; }
-.strengths li { padding-block: .55rem; border-top: 1px solid var(--border); font-family: var(--font-display); font-size: 1.3rem; }
+.strengths li { display: grid; gap: .2rem; align-content: start; padding-block: .75rem; border-top: 1px solid var(--border); }
+.strengths__name { font-family: var(--font-display); font-size: 1.3rem; line-height: 1.15; }
+.strengths__proof { color: var(--muted); font-size: .86rem; line-height: 1.45; }
 .strengths li:nth-child(-n + 2) { border-top: 0; }
 
 @media (max-width: 880px) {
