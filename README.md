@@ -37,7 +37,7 @@ npx serve .
 ```
 index.html          page markup
 css/style.css       styles (dark/light themes)
-js/main.js          interactions: theme, language, star sky, journey, doors
+js/main.js          interactions: language, menu, journey, doors
 js/space.js         3D space: sun, planets, stars, comets (three.js)
 js/intro.js         intro: comet trail → name, drag to orbit, dive into the sun
 js/i18n.js          Indonesian translations
