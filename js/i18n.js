@@ -130,6 +130,10 @@ const ID = {
   'A phone-friendly list of 60+ daily web games, with tier lists.': 'Daftar 60+ game web harian yang nyaman di HP, lengkap dengan tier list.',
   'Bookkeeping for a small shop: stock, sales, debts and monthly reports.': 'Pembukuan untuk toko kecil: stok, penjualan, hutang, dan laporan bulanan.',
   'Code ↗': 'Kode ↗',
+  'Team': 'Tim',
+  'A course platform whose AI tutor guides you with hints instead of answers.': 'Platform kursus dengan tutor AI yang membimbing lewat petunjuk, bukan jawaban.',
+  'Checks an online store for fraud risk with machine learning.': 'Memeriksa risiko penipuan sebuah toko online dengan machine learning.',
+  'An Android app that counts the reels you watch, with pixel mascots.': 'Aplikasi Android yang menghitung reels yang kamu tonton, dengan maskot piksel.',
 
   // project room
   'Back to the hall': 'Kembali ke lorong',

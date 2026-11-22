@@ -929,6 +929,19 @@ html.room-open { overflow: hidden; }
 .more__link::before { content: counter(more, decimal-leading-zero); font-family: var(--font-mono); font-size: .78rem; letter-spacing: .1em; color: var(--accent); }
 .more__name { font-family: var(--font-display); font-size: 1.6rem; line-height: 1.1; transition: color .3s; }
 .more__desc { color: var(--muted); font-size: .95rem; }
+.more__team {
+  display: inline-block;
+  margin-left: .4rem;
+  padding: .15rem .45rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: .6rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  vertical-align: middle;
+  color: var(--muted);
+}
 .more__go { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); white-space: nowrap; transition: color .3s, transform .3s var(--ease); }
 .more__link:hover .more__name,
 .more__link:focus-visible .more__name,
