@@ -79,7 +79,7 @@ const ID = {
   'School years': 'Masa sekolah',
   'Where the curiosity started, and where I first learned to lead.': 'Tempat rasa ingin tahu saya dimulai, dan tempat saya pertama kali belajar memimpin.',
   'Lots of questions, lots of numbers, and my first friends.': 'Banyak pertanyaan, banyak angka, dan teman-teman pertama saya.',
-  'Best graduate three years in a row, and a grade 8 math competition semifinalist.': 'Lulusan terbaik tiga tahun berturut-turut, dan semifinalis kompetisi matematika kelas 8.',
+  'Best graduate of my year, and a grade 8 math competition semifinalist.': 'Lulusan terbaik angkatan saya, dan semifinalis kompetisi matematika kelas 8.',
   'Ran a table tennis tournament for 9 schools, led the volleyball committee and its budget, and took 2nd place at the BHK Cup.':
     'Menjalankan turnamen tenis meja untuk 9 sekolah, memimpin panitia voli beserta anggarannya, dan meraih juara 2 di BHK Cup.',
   '2026 – now': '2026 – sekarang',
@@ -157,7 +157,6 @@ const ID = {
 
   // at a glance
   'At a glance': 'Sekilas',
-  'Best graduate in a row': 'Lulusan terbaik berturut-turut',
   'Schools at the tournament I ran': 'Sekolah di turnamen yang saya kelola',
   'Live projects online': 'Proyek yang sudah online',
   'Campus roles at BINUS': 'Peran di kampus BINUS',
