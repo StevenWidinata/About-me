@@ -1,6 +1,6 @@
-// Steven Widinata — 3D intro: my journey drawn as a constellation, then a warp into the site.
-// A line traces an "S" and a "W" star by star; four of the stars are chapters (SD, SMP, SMA, BINUS)
-// and light up with their year as the line reaches them. Click and the camera flies into the last one.
+// Steven Widinata — intro: a comet sweeps across the solar system and leaves a trail of stars,
+// the trail gathers into my name, and "Start my journey" dives into the sun.
+// Drag anywhere to orbit the scene; hover the name to ripple its stars.
 // Plays once per browser session. Skipped for deep links (#section) and reduced motion.
 'use strict';
 
@@ -9,280 +9,263 @@ const Intro = (() => {
   const root = document.querySelector('.intro');
   if (!root) return { replay() {} };
 
-  const THREE_URL = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
-  const canvas = root.querySelector('.intro__canvas');
   const startBtn = root.querySelector('.intro__start');
   const skipBtn = root.querySelector('.intro__skip');
-  const labels = [...root.querySelectorAll('.intro__label')];
   const flash = document.querySelector('.flash');
   const site = document.querySelector('.site');
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const S = typeof Space !== 'undefined' ? Space : { ok: false, setMode() {} };
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+  const easeInOut = (p) => (p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
 
-  const CAM_Z = 100, FOV = 60, STAR = 1400, LINES = 600;
+  // timeline, in seconds from the start (about 7 s until the button shows)
+  const T_SWEEP = .8, SWEEP = 2.0;   // the comet crosses the screen
+  const T_GATHER = 2.8, GATHER = 2.2; // the trail flies into the letters, left to right
+  const T_READY = 6.2;                // tagline + button fade in
+  const WARP = 2.35;                  // flight into the sun
 
-  // The constellation, traced as one path: an S, then a W. Units: letter height = 1.
-  const SHAPE = [
-    [-.28, .40], [-.45, .50], [-.68, .48], [-.80, .30], [-.66, .10], [-.44, -.04], [-.30, -.24], [-.40, -.44], [-.62, -.50], [-.82, -.38],
-    [.00, .50], [.20, -.50], [.45, .15], [.70, -.50], [.92, .50],
-  ];
-  const CHAPTERS = { 3: 0, 8: 1, 11: 2, 14: 3 }; // path index -> label index (2013, 2019, 2022, 2026)
-  const BRIDGE = 9;                               // the pen lifts between the S and the W (no line drawn)
-  const T0 = .45, T_DRAW = 2.5;                 // when the line starts, and how long it takes
+  let T, nameGroup, textGeo, textMat, textPts, comet;
+  let N = 0, B, U, TD, J, W, G, C, PH, O, K, V, WS;
+  let state = 'off', tStart = 0, tWarp = 0, readyTimer = 0;
+  let camFrom, sunPos, lookFrom;
 
-  let gl, renderer, scene, camera, group, sprite;
-  let con, PTS = [], cum = [], total = 1, nodes = [], segGeo, SEG, hot = -1; // the constellation
-  let starGeo, SP, lineGeo, lineMat, LP, LZ;                                  // background stars, warp streaks
-  let visW = 0, visH = 0, state = 'off', tStart = 0, tWarp = 0, last = 0, raf = 0, readyTimer = 0;
-  const m = { nx: 0, ny: 0, sx: -1e4, sy: -1e4 };
-  const v3 = { x: 0, y: 0 };
-
-  /* ---------- setup ---------- */
-  let loading = null;
-  const loadThree = () => loading || (loading = new Promise((res, rej) => {
-    if (window.THREE) return res();
-    const s = document.createElement('script');
-    s.src = THREE_URL;
-    s.async = true;
-    s.crossOrigin = 'anonymous';
-    s.onload = res;
-    s.onerror = rej;
-    document.head.append(s);
-  }));
-
-  const webglOk = () => {
-    try {
-      const c = document.createElement('canvas');
-      return !!(c.getContext('webgl') || c.getContext('experimental-webgl'));
-    } catch (e) { return false; }
-  };
-
-  const makeSprite = () => {
+  /* ---------- the name, sampled from text drawn on a 2D canvas ---------- */
+  function sampleName() {
+    const two = innerWidth / innerHeight < 1.15;
+    const lines = two ? ['Steven', 'Widinata'] : ['Steven Widinata'];
+    const Wc = 1600, Hc = two ? 900 : 440;
     const c = document.createElement('canvas');
-    c.width = c.height = 64;
+    c.width = Wc; c.height = Hc;
     const g = c.getContext('2d');
-    const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
-    gr.addColorStop(0, 'rgba(255,255,255,1)');
-    gr.addColorStop(.22, 'rgba(255,255,255,.85)');
-    gr.addColorStop(.55, 'rgba(255,255,255,.14)');
-    gr.addColorStop(1, 'rgba(255,255,255,0)');
-    g.fillStyle = gr;
-    g.fillRect(0, 0, 64, 64);
-    return new THREE.CanvasTexture(c);
+    const font = (px) => `400 ${px}px "Instrument Serif", Georgia, serif`;
+    let px = two ? 380 : 270;
+    g.font = font(px);
+    const widest = Math.max(...lines.map((l) => g.measureText(l).width));
+    if (widest > Wc * .94) { px *= Wc * .94 / widest; g.font = font(px); }
+    g.fillStyle = '#fff';
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    lines.forEach((l, i) => g.fillText(l, Wc / 2, Hc / 2 + (i - (lines.length - 1) / 2) * px * .92));
+
+    const data = g.getImageData(0, 0, Wc, Hc).data;
+    let filled = 0;
+    for (let i = 3; i < data.length; i += 16) if (data[i] > 128) filled++;
+    filled *= 4;
+    const target = S.phone ? 3400 : 7000;
+    const step = Math.max(2, Math.round(Math.sqrt(filled / target)));
+    const pts = [];
+    let minX = Wc, maxX = 0, minY = Hc, maxY = 0;
+    for (let y = 0; y < Hc; y += step) {
+      for (let x = 0; x < Wc; x += step) {
+        if (data[(y * Wc + x) * 4 + 3] > 128) {
+          pts.push(x, y);
+          if (x < minX) minX = x; if (x > maxX) maxX = x;
+          if (y < minY) minY = y; if (y > maxY) maxY = y;
+        }
+      }
+    }
+    return { pts, minX, maxX, minY, maxY, step };
+  }
+
+  // the comet's path across the screen (u: 0 → 1, left → right), in front of the sun
+  const path = (u, out) => {
+    const vw = S.visW, vh = S.visH;
+    out.x = -vw * .62 + u * vw * 1.24;
+    out.y = vh * (.2 - .2 * u) + vh * .07 * Math.sin(Math.PI * u);
+    out.z = 8 + 6 * Math.sin(Math.PI * u);
+    return out;
   };
 
-  async function setup() {
-    if (gl !== undefined) return;
-    if (reduce || !webglOk()) { gl = false; return; }
-    try {
-      await Promise.race([loadThree(), wait(6000).then(() => { throw new Error('three.js timed out'); })]);
-      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-      renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
-      renderer.setClearColor(0x0E0C0A, 1);
-      scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(FOV, innerWidth / innerHeight, .1, 2000);
-      camera.position.z = CAM_Z;
-      group = new THREE.Group();
-      scene.add(group);
-      sprite = makeSprite();
-      size();
-      buildStars();
-      buildLines();
-      gl = true;
-    } catch (e) {
-      gl = false;
+  function buildText() {
+    const s = sampleName(), pts = s.pts;
+    N = pts.length / 2;
+    const vw = S.visW, vh = S.visH;
+    const tw = (s.maxX - s.minX) || 1, th = (s.maxY - s.minY) || 1;
+    const scale = Math.min(vw * .8 / tw, vh * .42 / th);
+    const cx = (s.minX + s.maxX) / 2, cy = (s.minY + s.maxY) / 2;
+    const lift = vh * .07, jit = s.step * scale * .5;
+    B = new Float32Array(N * 3); J = new Float32Array(N * 3); W = new Float32Array(N * 3); C = new Float32Array(N * 3);
+    O = new Float32Array(N * 3); K = new Float32Array(N * 3); V = new Float32Array(N * 3); WS = new Float32Array(N * 3);
+    U = new Float32Array(N); TD = new Float32Array(N); G = new Float32Array(N); PH = new Float32Array(N);
+    const pos = new Float32Array(N * 3), col = new Float32Array(N * 3);
+    const pal = [[.95, .93, .9], [.95, .93, .9], [.95, .93, .9], [.83, .66, .48], [.69, .51, .35]]; // bone white, some tan and caramel
+    const p = { x: 0, y: 0, z: 0 };
+    for (let i = 0; i < N; i++) {
+      const k = i * 3;
+      B[k] = (pts[i * 2] - cx) * scale + (Math.random() - .5) * jit;
+      B[k + 1] = -(pts[i * 2 + 1] - cy) * scale + lift + (Math.random() - .5) * jit;
+      B[k + 2] = (Math.random() - .5) * 2.5;
+      // each star drops from the comet where it passes above its letter
+      U[i] = clamp(.5 + B[k] / (vw * 1.24) + (Math.random() - .5) * .03, 0, 1);
+      TD[i] = T_SWEEP + U[i] * SWEEP;
+      path(U[i], p);
+      const r = Math.pow(Math.random(), 1.6) * vh * .06, a = Math.random() * Math.PI * 2;
+      J[k] = p.x + Math.cos(a) * r - Math.random() * vw * .02;
+      J[k + 1] = p.y + Math.sin(a) * r;
+      J[k + 2] = p.z + (Math.random() - .5) * 6;
+      // the trail drifts a little, and sinks slowly, before it gathers
+      W[k] = (Math.random() - .6) * vw * .03;
+      W[k + 1] = (Math.random() - .65) * vh * .05;
+      W[k + 2] = (Math.random() - .5) * 8;
+      G[i] = T_GATHER + U[i] * .9 + Math.random() * .25;
+      // each star curves in on its own path
+      const ca = Math.random() * Math.PI * 2, cr = vh * (.04 + Math.random() * .1);
+      C[k] = Math.cos(ca) * cr; C[k + 1] = Math.sin(ca) * cr; C[k + 2] = (Math.random() - .5) * 20;
+      PH[i] = Math.random() * Math.PI * 2;
+      K.set(pal[(Math.random() * pal.length) | 0], k);
+      pos[k] = J[k]; pos[k + 1] = J[k + 1]; pos[k + 2] = J[k + 2];
     }
+    if (textPts) { nameGroup.remove(textPts); textGeo.dispose(); }
+    textGeo = new T.BufferGeometry();
+    textGeo.setAttribute('position', new T.BufferAttribute(pos, 3).setUsage(T.DynamicDrawUsage));
+    textGeo.setAttribute('color', new T.BufferAttribute(col, 3).setUsage(T.DynamicDrawUsage));
+    textMat.size = Math.max(.9, s.step * scale * 1.7);
+    textMat.opacity = 1;
+    textPts = new T.Points(textGeo, textMat);
+    textPts.frustumCulled = false;
+    nameGroup.add(textPts);
   }
 
-  function size() {
-    renderer.setSize(innerWidth, innerHeight, false);
-    camera.aspect = innerWidth / innerHeight;
-    camera.fov = FOV;
-    camera.updateProjectionMatrix();
-    visH = 2 * CAM_Z * Math.tan(FOV * Math.PI / 360);
-    visW = visH * camera.aspect;
+  /* ---------- drag to orbit, hover to ripple ---------- */
+  const orbit = { yaw: 0, pitch: 0, vy: 0, vp: 0, down: false, moved: false, x: 0, y: 0, id: 0 };
+  const hover = { on: false, sx: 0, sy: 0, lx: 1e4, ly: 1e4 };
+  let ray, plane, hit, ndc;
+
+  // where the pointer touches the name's plane, in the name's own coordinates
+  function pointerOnName() {
+    if (!hover.on) { hover.lx = hover.ly = 1e4; return; }
+    ndc.set(hover.sx / innerWidth * 2 - 1, -(hover.sy / innerHeight * 2 - 1));
+    ray.setFromCamera(ndc, S.camera);
+    plane.set(new T.Vector3(0, 0, 1), 0).applyMatrix4(nameGroup.matrixWorld);
+    if (ray.ray.intersectPlane(plane, hit)) {
+      nameGroup.worldToLocal(hit);
+      hover.lx = hit.x; hover.ly = hit.y;
+    } else hover.lx = hover.ly = 1e4;
   }
 
-  /* ---------- the constellation ---------- */
-  const glow = (color, opacity = 1) => new THREE.Sprite(new THREE.SpriteMaterial({
-    map: sprite, color, transparent: true, opacity, blending: THREE.AdditiveBlending, depthWrite: false,
-  }));
-
-  function buildConstellation() {
-    if (con) {
-      group.remove(con);
-      con.traverse((o) => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); });
-    }
-    con = new THREE.Group();
-    const unit = Math.min(visW * .56 / 1.74, visH * .32), lift = visH * .14;
-    PTS = SHAPE.map(([x, y]) => new THREE.Vector3((x - .05) * unit, y * unit + lift, 0));
-    cum = [0];
-    for (let i = 1; i < PTS.length; i++) cum[i] = cum[i - 1] + PTS[i].distanceTo(PTS[i - 1]);
-    total = cum[cum.length - 1];
-
-    // the line: one segment per hop, grown each frame
-    SEG = new Float32Array((PTS.length - 1) * 6);
-    const col = new Float32Array(SEG.length);
-    for (let i = 0; i < PTS.length - 1; i++) {
-      const k = i === BRIDGE ? 0 : .7;
-      col.set([.95 * k, .9 * k, .82 * k, .95 * k, .9 * k, .82 * k], i * 6);
-    }
-    segGeo = new THREE.BufferGeometry();
-    segGeo.setAttribute('position', new THREE.BufferAttribute(SEG, 3).setUsage(THREE.DynamicDrawUsage));
-    segGeo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-    con.add(new THREE.LineSegments(segGeo, new THREE.LineBasicMaterial({
-      vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false,
-    })));
-
-    // the stars: chapters are bigger, brass, and send out a slow pulse
-    nodes = PTS.map((p, i) => {
-      const ch = CHAPTERS[i] ?? -1;
-      const s = glow(ch >= 0 ? 0xE9CD93 : 0xF2EDE6);
-      s.position.copy(p);
-      s.scale.setScalar(.0001);
-      con.add(s);
-      let halo = null;
-      if (ch >= 0) {
-        halo = glow(0xD4A97A, 0);
-        halo.position.copy(p);
-        con.add(halo);
-      }
-      return { s, halo, ch, at: cum[i], size: unit * (ch >= 0 ? .17 : .09), lit: -1, sx: -1e4, sy: -1e4 };
-    });
-    group.add(con);
-  }
-
-  // where a star sits on screen right now (follows the tilt)
-  const project = (obj) => {
-    const v = obj.getWorldPosition(new THREE.Vector3()).project(camera);
-    v3.x = (v.x + 1) / 2 * innerWidth;
-    v3.y = (1 - v.y) / 2 * innerHeight;
-    return v3;
+  const onUi = (e) => e.target.closest('button, a');
+  root.addEventListener('pointerdown', (e) => {
+    if (onUi(e) || state !== 'form') return;
+    Object.assign(orbit, { down: true, moved: false, x: e.clientX, y: e.clientY, id: e.pointerId, vy: 0, vp: 0 });
+    root.setPointerCapture?.(e.pointerId);
+  });
+  root.addEventListener('pointermove', (e) => {
+    hover.on = e.pointerType === 'mouse' || orbit.down;
+    hover.sx = e.clientX; hover.sy = e.clientY;
+    if (!orbit.down) return;
+    const dx = e.clientX - orbit.x, dy = e.clientY - orbit.y;
+    if (!orbit.moved && Math.hypot(dx, dy) < 4) return;
+    if (!orbit.moved) { orbit.moved = true; root.classList.add('is-dragging'); }
+    orbit.x = e.clientX; orbit.y = e.clientY;
+    orbit.yaw += dx * .0035;
+    orbit.pitch = clamp(orbit.pitch + dy * .0035, -1.2, 1.2);
+    orbit.vy = clamp(dx * .0035, -.04, .04); orbit.vp = clamp(dy * .0035, -.04, .04); // glide speed after release
+  });
+  const release = () => {
+    orbit.down = false;
+    root.classList.remove('is-dragging');
   };
+  root.addEventListener('pointerup', release);
+  root.addEventListener('pointercancel', release);
+  root.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') hover.on = false; });
 
-  function updateConstellation(t) {
-    const p = clamp((t - T0) / T_DRAW, 0, 1);
-    const e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
-    const L = e * total;
-    for (let i = 0; i < PTS.length - 1; i++) {
-      const a = PTS[i], b = PTS[i + 1], k = i * 6;
-      const f = clamp((L - cum[i]) / (cum[i + 1] - cum[i] || 1), 0, 1);
-      SEG[k] = a.x; SEG[k + 1] = a.y; SEG[k + 2] = a.z;
-      SEG[k + 3] = a.x + (b.x - a.x) * f; SEG[k + 4] = a.y + (b.y - a.y) * f; SEG[k + 5] = 0;
+  /* ---------- the intro comet ---------- */
+  const cp = { x: 0, y: 0, z: 0 };
+  function drawComet(t) {
+    const u = (t - T_SWEEP) / SWEEP;
+    if (u > 1.4) { if (comet) { comet.dispose(); comet = null; } return; }
+    if (!comet) { comet = S.makeTrail(S.phone ? 60 : 90); nameGroup.add(comet.points); }
+    const n = comet.n, fade = clamp(Math.min((u + .05) * 8, (1.4 - u) * 4), 0, 1);
+    for (let k = 0; k < n; k++) {
+      const uk = u - k * .0034, f = k / n;
+      path(uk, cp);
+      comet.P[k * 3] = cp.x; comet.P[k * 3 + 1] = cp.y; comet.P[k * 3 + 2] = cp.z;
+      comet.S[k] = k === 0 ? 7 : 4.2 * (1 - f) + .4;
+      comet.A[k] = uk < 0 || u < 0 ? 0 : fade * (k === 0 ? 1 : Math.pow(1 - f, 1.5) * .85);
+      comet.C.set([1, .93 - f * .2, .8 - f * .35], k * 3);
     }
-    segGeo.attributes.position.needsUpdate = true;
-
-    group.updateMatrixWorld();
-    let best = 34, nextHot = -1;
-    nodes.forEach((n, i) => {
-      if (n.lit < 0 && t >= T0 && L >= n.at - .001) {
-        n.lit = t;
-        if (n.ch >= 0) labels[n.ch].classList.add('is-on');
-      }
-      let k = 0;
-      if (n.lit >= 0) {
-        const a = (t - n.lit) / .4;
-        k = a < 1 ? a + Math.sin(a * Math.PI) * .5 : 1 + Math.sin(t * 2.2 + i) * .07; // pop, then a soft twinkle
-      }
-      if (i === hot) k *= 1.6;
-      n.s.scale.setScalar(Math.max(.0001, n.size * k));
-      if (n.halo) {
-        const ph = n.lit >= 0 ? ((t - n.lit) % 2.6) / 2.6 : 0;
-        n.halo.scale.setScalar(n.size * (1 + ph * 2.4));
-        n.halo.material.opacity = n.lit >= 0 ? (1 - ph) * .45 : 0;
-      }
-      const s = project(n.s);
-      n.sx = s.x; n.sy = s.y;
-      if (n.ch >= 0) labels[n.ch].style.transform = `translate(${s.x}px, ${s.y}px)`;
-      const d = Math.hypot(s.x - m.sx, s.y - m.sy);
-      if (n.lit >= 0 && d < best) { best = d; nextHot = i; }
-    });
-    if (nextHot !== hot) {
-      hot = nextHot;
-      labels.forEach((l, j) => l.classList.toggle('is-hot', hot >= 0 && nodes[hot].ch === j));
-      root.classList.toggle('is-pointing', hot >= 0);
-    }
+    comet.commit();
   }
 
-  /* ---------- background stars and warp streaks ---------- */
-  function buildStars() {
-    SP = new Float32Array(STAR * 3);
-    const col = new Float32Array(STAR * 3);
-    for (let i = 0; i < STAR; i++) {
-      SP[i * 3] = (Math.random() - .5) * 700;
-      SP[i * 3 + 1] = (Math.random() - .5) * 450;
-      SP[i * 3 + 2] = -1000 + Math.random() * 1020;
-      col.set(Math.random() < .75 ? [.82, .79, .75] : [.72, .57, .41], i * 3);
-    }
-    starGeo = new THREE.BufferGeometry();
-    starGeo.setAttribute('position', new THREE.BufferAttribute(SP, 3).setUsage(THREE.DynamicDrawUsage));
-    starGeo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-    const mat = new THREE.PointsMaterial({ size: 1.6, map: sprite, vertexColors: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: .8 });
-    group.add(new THREE.Points(starGeo, mat));
-  }
-
-  function resetLine(i, initial) {
-    const a = Math.random() * Math.PI * 2, r = 10 + Math.random() * 230;
-    LP[i * 6] = LP[i * 6 + 3] = Math.cos(a) * r;
-    LP[i * 6 + 1] = LP[i * 6 + 4] = Math.sin(a) * r * .65;
-    LZ[i] = initial ? -1000 + Math.random() * 1000 : -1000 - Math.random() * 200;
-    LP[i * 6 + 2] = LP[i * 6 + 5] = LZ[i];
-  }
-  function buildLines() {
-    LP = new Float32Array(LINES * 6);
-    LZ = new Float32Array(LINES);
-    const col = new Float32Array(LINES * 6);
-    for (let i = 0; i < LINES; i++) { resetLine(i, true); col.set([.95, .93, .9, .45, .32, .2], i * 6); }
-    lineGeo = new THREE.BufferGeometry();
-    lineGeo.setAttribute('position', new THREE.BufferAttribute(LP, 3).setUsage(THREE.DynamicDrawUsage));
-    lineGeo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-    lineMat = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
-    scene.add(new THREE.LineSegments(lineGeo, lineMat));
-  }
-
-  /* ---------- animation ---------- */
-  function loop() {
-    const now = performance.now();
-    const dt = Math.min(3, Math.max(0, now - last) / 16.667);
-    last = now;
-
+  /* ---------- every frame ---------- */
+  function frame(now, dt) {
+    const f60 = dt * 60;
     if (state === 'form') {
-      updateConstellation((now - tStart) / 1000);
-      for (let i = 0; i < STAR; i++) { const k = i * 3 + 2; SP[k] += .06 * dt; if (SP[k] > 20) SP[k] -= 1020; }
-      starGeo.attributes.position.needsUpdate = true;
-      const ry = m.nx * .22 + Math.sin(now * .0003) * .04, rx = -m.ny * .12;
-      group.rotation.y += (ry - group.rotation.y) * .04 * dt;
-      group.rotation.x += (rx - group.rotation.x) * .04 * dt;
-    } else if (state === 'warp') {
-      // fly into the 2026 star: the constellation grows around it while it slides to the centre,
-      // stars stretch into streaks, the view widens, then a soft flash
-      const t = (now - tWarp) / 1000, s = Math.min(1, t / 1.5);
-      const z = 1 + 9 * s * s * s, P = PTS[PTS.length - 1];
-      con.scale.setScalar(z);
-      con.position.set(-P.x * z + P.x * (1 - s), -P.y * z + P.y * (1 - s), 0);
-      const fade = Math.max(0, 1 - t * .85);
-      con.children.forEach((o) => { if (!o.isSprite || o.material.opacity > fade) o.material.opacity = fade; });
-      const speed = (1.5 + 60 * s * s) * dt;
-      for (let i = 0; i < STAR; i++) { const k = i * 3 + 2; SP[k] += speed * .7; if (SP[k] > 20) SP[k] -= 1020; }
-      starGeo.attributes.position.needsUpdate = true;
-      const len = speed * 6;
-      for (let i = 0; i < LINES; i++) {
-        LZ[i] += speed * 1.2;
-        if (LZ[i] > CAM_Z - 2) resetLine(i, false);
-        LP[i * 6 + 2] = LZ[i];
-        LP[i * 6 + 5] = LZ[i] - len;
+      const t = (now - tStart) / 1000;
+      // orbit: glide after release, plus a slow idle sway
+      if (!orbit.down) {
+        orbit.yaw += orbit.vy * f60; orbit.vy *= Math.pow(.92, f60);
+        orbit.pitch = clamp(orbit.pitch + orbit.vp * f60, -1.2, 1.2); orbit.vp *= Math.pow(.92, f60);
       }
-      lineGeo.attributes.position.needsUpdate = true;
-      lineMat.opacity = Math.min(.9, s * 1.4);
-      camera.fov = FOV + 38 * s * s;
-      camera.updateProjectionMatrix();
-      group.rotation.z += .004 * dt * s;
-      if (t > 1.55) flash.classList.add('on');
-      if (t > 2.05) { finish(); return; }
+      S.world.rotation.set(orbit.pitch + Math.sin(now * .00023) * .03, orbit.yaw + Math.sin(now * .0003) * .05, 0);
+      S.world.updateMatrixWorld();
+      pointerOnName();
+      drawComet(t);
+      updateName(t, f60);
+    } else if (state === 'warp') {
+      const t = (now - tWarp) / 1000;
+      // the name scatters outward in 3D and fades while the camera dives into the sun
+      const pos = textGeo.attributes.position.array, col = textGeo.attributes.color.array;
+      const out = 1 - Math.exp(-t * 1.3), dim = Math.max(0, 1 - t / 1.9);
+      for (let i = 0; i < N * 3; i++) { pos[i] = WS[i] + V[i] * out; col[i] = K[i] * dim; }
+      textGeo.attributes.position.needsUpdate = true;
+      textGeo.attributes.color.needsUpdate = true;
+      const p = clamp(t / WARP, 0, 1), e = Math.pow(p, 2.2);
+      S.camera.position.lerpVectors(camFrom, sunPos, e * .985);
+      const look = lookFrom.clone().lerp(sunPos, clamp(t / .8, 0, 1));
+      S.camera.lookAt(look);
+      S.camera.fov = S.FOV + 14 * e;
+      S.camera.updateProjectionMatrix();
+      S.updateScale();
+      if (t > 1.95) flash.classList.add('on');
+      if (t > WARP) finish();
     }
-    renderer.render(scene, camera);
-    raf = requestAnimationFrame(loop);
+  }
+
+  function updateName(t, f60) {
+    const pos = textGeo.attributes.position.array, col = textGeo.attributes.color.array;
+    const R = S.visW * .075, R2 = R * R, damp = Math.pow(.9, f60);
+    for (let i = 0; i < N; i++) {
+      const k = i * 3;
+      let x, y, z, br, mix;
+      if (t < TD[i]) {                       // not dropped yet
+        col[k] = col[k + 1] = col[k + 2] = 0;
+        continue;
+      }
+      const sinceDrop = t - TD[i];
+      if (t < G[i]) {                         // hanging in the comet's trail
+        const d = 1 - Math.exp(-sinceDrop * 1.1);
+        x = J[k] + W[k] * d; y = J[k + 1] + W[k + 1] * d; z = J[k + 2] + W[k + 2] * d;
+        br = .45 + .9 * Math.exp(-sinceDrop * 2.6) + .15 * Math.sin(t * 9 + PH[i]);
+        mix = 0;
+      } else {                                // curving into its letter
+        const dg = 1 - Math.exp(-(G[i] - TD[i]) * 1.1);
+        const x0 = J[k] + W[k] * dg, y0 = J[k + 1] + W[k + 1] * dg, z0 = J[k + 2] + W[k + 2] * dg;
+        const p = clamp((t - G[i]) / GATHER, 0, 1), e = easeInOut(p), a = 1 - e;
+        const mx = (x0 + B[k]) / 2 + C[k], my = (y0 + B[k + 1]) / 2 + C[k + 1], mz = (z0 + B[k + 2]) / 2 + C[k + 2];
+        x = a * a * x0 + 2 * a * e * mx + e * e * B[k];
+        y = a * a * y0 + 2 * a * e * my + e * e * B[k + 1];
+        z = a * a * z0 + 2 * a * e * mz + e * e * B[k + 2] + Math.sin(t * 1.3 + PH[i]) * .7 * e;
+        br = .45 + .55 * e;
+        mix = e;
+        if (p >= 1) {                         // formed: hover pushes the stars aside, then they flow back
+          const dx = x + O[k] - hover.lx, dy = y + O[k + 1] - hover.ly, d2 = dx * dx + dy * dy;
+          if (d2 < R2 && !(orbit.down && orbit.moved)) {
+            const d = Math.sqrt(d2) || 1, f = (1 - d / R) * 1.8 * f60;
+            O[k] += dx / d * f; O[k + 1] += dy / d * f; O[k + 2] += f * 1.6;
+          }
+          br = .86 + .14 * Math.sin(t * 2.1 + PH[i]);
+        }
+      }
+      O[k] *= damp; O[k + 1] *= damp; O[k + 2] *= damp;
+      pos[k] = x + O[k]; pos[k + 1] = y + O[k + 1]; pos[k + 2] = z + O[k + 2];
+      // trail stars glow warm white, then take their letter colour
+      col[k] = (1 * (1 - mix) + K[k] * mix) * br;
+      col[k + 1] = (.92 * (1 - mix) + K[k + 1] * mix) * br;
+      col[k + 2] = (.8 * (1 - mix) + K[k + 2] * mix) * br;
+    }
+    textGeo.attributes.position.needsUpdate = true;
+    textGeo.attributes.color.needsUpdate = true;
   }
 
   /* ---------- flow ---------- */
@@ -292,6 +275,17 @@ const Intro = (() => {
   };
   const remember = () => { try { sessionStorage.setItem('introSeen', '1'); } catch (e) { /* private mode */ } };
 
+  let built = false;
+  function setup() {
+    if (built) return;
+    built = true;
+    T = S.THREE;
+    nameGroup = new T.Group();
+    textMat = new T.PointsMaterial({ size: 1, map: S.glowTex, vertexColors: true, transparent: true, depthWrite: false, blending: T.AdditiveBlending });
+    ray = new T.Raycaster(); plane = new T.Plane(); hit = new T.Vector3(); ndc = new T.Vector2();
+    S.onFrame(frame);
+  }
+
   function ready() {
     if (state !== 'form' && state !== 'static') return;
     root.classList.add('is-ready');
@@ -300,104 +294,102 @@ const Intro = (() => {
 
   async function begin() {
     lockSite(true);
-    root.classList.remove('is-ready', 'is-warping', 'is-leaving', 'is-pointing');
-    labels.forEach((l) => l.classList.remove('is-on', 'is-hot'));
+    root.classList.remove('is-ready', 'is-warping', 'is-leaving', 'is-dragging');
     state = 'loading';
-    await setup();
-    if (state !== 'loading') return; // skipped while loading
     clearTimeout(readyTimer);
-    if (!gl) {
+    if (!S.ok) {
       root.classList.add('intro--static');
       state = 'static';
       readyTimer = setTimeout(ready, 300);
       return;
     }
-    root.classList.remove('intro--static');
-    size();
-    group.rotation.set(0, 0, 0);
-    buildConstellation();
-    hot = -1;
-    lineMat.opacity = 0;
-    for (let i = 0; i < LINES; i++) resetLine(i, true);
-    lineGeo.attributes.position.needsUpdate = true;
+    const fonts = document.fonts ? Promise.race([document.fonts.load('400 120px "Instrument Serif"'), wait(1800)]).catch(() => {}) : null;
+    await fonts;
+    if (state !== 'loading') return; // skipped while loading
+    setup();
+    S.setMode('intro');
+    S.world.add(nameGroup);
+    Object.assign(orbit, { yaw: 0, pitch: 0, vy: 0, vp: 0, down: false, moved: false });
+    O && O.fill(0);
+    buildText();
     state = 'form';
-    tStart = last = performance.now();
-    readyTimer = setTimeout(ready, (T0 + T_DRAW + .3) * 1000);
-    cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(loop);
+    tStart = performance.now();
+    readyTimer = setTimeout(ready, T_READY * 1000);
   }
 
   function start() {
     if (state === 'form') {
       state = 'warp';
-      tWarp = last = performance.now();
+      tWarp = performance.now();
       clearTimeout(readyTimer);
       root.classList.add('is-warping');
-      root.classList.remove('is-ready', 'is-pointing');
+      root.classList.remove('is-ready');
+      if (comet) { comet.dispose(); comet = null; }
+      // freeze where every star is, and send it outward
+      const pos = textGeo.attributes.position.array;
+      WS.set(pos);
+      const vw = S.visW;
+      for (let i = 0; i < N; i++) {
+        const k = i * 3, d = Math.hypot(pos[k], pos[k + 1]) || 1, sp = vw * (.18 + Math.random() * .5);
+        V[k] = pos[k] / d * sp + (Math.random() - .5) * vw * .25;
+        V[k + 1] = pos[k + 1] / d * sp + (Math.random() - .5) * vw * .25;
+        V[k + 2] = (Math.random() - .35) * vw * .8;
+      }
+      camFrom = S.camera.position.clone();
+      lookFrom = new T.Vector3(0, 0, 0);
+      sunPos = S.sunWorld(new T.Vector3());
     } else if (state === 'static') {
       state = 'warp';
       root.classList.add('is-warping');
-      if (reduce) { finish(); return; }
       flash.classList.add('on');
       setTimeout(finish, 480);
     }
   }
 
-  function finish() {
-    state = 'off';
-    cancelAnimationFrame(raf);
+  function cleanup() {
     clearTimeout(readyTimer);
-    root.classList.remove('is-warping', 'is-ready', 'is-leaving');
+    if (comet) { comet.dispose(); comet = null; }
+    if (nameGroup && nameGroup.parent) nameGroup.parent.remove(nameGroup);
+    S.setMode('site');
     lockSite(false);
     remember();
+  }
+
+  function finish() {
+    state = 'off';
+    root.classList.remove('is-warping', 'is-ready', 'is-leaving');
+    cleanup();
     flash.classList.add('out');
     requestAnimationFrame(() => flash.classList.remove('on'));
     setTimeout(() => flash.classList.remove('out'), 1200);
   }
 
   function skip() {
-    if (state === 'off' || state === 'leaving') return;
+    if (state === 'off' || state === 'leaving' || state === 'warp') return;
     state = 'leaving';
     clearTimeout(readyTimer);
     root.classList.add('is-leaving');
     setTimeout(() => {
-      cancelAnimationFrame(raf);
       state = 'off';
-      root.classList.remove('is-leaving', 'is-ready', 'is-warping', 'is-pointing');
-      lockSite(false);
-      remember();
-    }, reduce ? 0 : 560);
+      root.classList.remove('is-leaving', 'is-ready', 'is-warping');
+      cleanup();
+    }, 560);
   }
 
-  /* ---------- input ---------- */
-  const point = (e) => {
-    m.nx = e.clientX / innerWidth * 2 - 1;
-    m.ny = -(e.clientY / innerHeight * 2 - 1);
-    m.sx = e.clientX; m.sy = e.clientY;
-  };
-  root.addEventListener('pointermove', point);
-  root.addEventListener('pointerdown', point); // a tap picks a star on phones
-  root.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') { m.nx = m.ny = 0; m.sx = m.sy = -1e4; } });
   startBtn.addEventListener('click', start);
   skipBtn.addEventListener('click', skip);
   addEventListener('keydown', (e) => { if (e.key === 'Escape' && html.classList.contains('intro-on')) skip(); });
 
   let rz;
   addEventListener('resize', () => {
-    if (!gl) return;
+    if (!S.ok) return;
     clearTimeout(rz);
     rz = setTimeout(() => {
-      size();
-      if (state === 'form') {
-        const formed = root.classList.contains('is-ready');
-        buildConstellation();
-        hot = -1;
-        if (formed) { // already drawn: rebuild it finished, without replaying the line
-          tStart = performance.now() - 10000;
-          nodes.forEach((n) => { n.lit = 0; });
-        }
-      }
-    }, 200);
+      if (state !== 'form') return;
+      const formed = root.classList.contains('is-ready');
+      buildText(); // Space has already resized; positions follow the clock, so this carries on seamlessly
+      if (formed) tStart = Math.min(tStart, performance.now() - 20000);
+    }, 260);
   });
 
   if (html.classList.contains('intro-on')) begin();

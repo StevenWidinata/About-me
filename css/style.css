@@ -196,20 +196,28 @@ html.space-site .space { opacity: .5; }
 .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
 .lang-toggle { font-family: var(--font-mono); font-size: .72rem; font-weight: 500; letter-spacing: .06em; }
 
-/* ---------- Intro: my journey as a constellation, then warp in (always dark) ---------- */
+/* ---------- Intro: a comet's trail forms my name over the solar system (drawn on .space) ---------- */
 .intro { display: none; }
 html.intro-on { overflow: hidden; }
+html.intro-on .site { opacity: 0; }
+.site { transition: opacity .9s var(--ease); }
 html.intro-on .intro {
   position: fixed;
   inset: 0;
   z-index: 700;
   display: block;
-  background: var(--night);
+  background: transparent;
   color: var(--night-text);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
   transition: opacity .55s var(--ease);
 }
+html.intro-on .intro.intro--static { background: var(--night); cursor: auto; }
+.intro.is-dragging { cursor: grabbing; }
+.intro button { cursor: pointer; }
 .intro.is-leaving { opacity: 0; pointer-events: none; }
-.intro__canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
 .intro__top {
   position: absolute;
   z-index: 2;
@@ -257,46 +265,6 @@ html.intro-on .intro {
 .intro__name em { color: #D4A97A; }
 .intro--static .intro__name { display: grid; animation: rise 1s var(--ease) both; }
 
-/* chapter labels that follow their star (positioned from JS) */
-.intro__labels { position: absolute; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; transition: opacity .3s; }
-.intro--static .intro__labels { display: none; }
-.intro.is-warping .intro__labels { opacity: 0; }
-.intro.is-pointing .intro__canvas { cursor: pointer; }
-.intro__label { position: absolute; left: 0; top: 0; will-change: transform; }
-.intro__label > span {
-  position: absolute;
-  white-space: nowrap;
-  font-family: var(--font-mono);
-  font-size: .66rem;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--night-muted);
-  opacity: 0;
-  transition: opacity .7s var(--ease), color .3s;
-}
-.intro__label > span b { margin-right: .35em; font-weight: 500; color: #D4A97A; }
-.intro__label > span i { font-style: normal; }
-.intro__label.is-on > span { opacity: 1; }
-.intro__label.is-hot > span { color: var(--night-text); }
-.intro__label[data-anchor="left"] > span { right: 16px; transform: translateY(-50%); }
-.intro__label[data-anchor="above"] > span { bottom: 16px; transform: translateX(-50%); }
-.intro__label[data-anchor="below-left"] > span { top: 14px; right: -4px; }
-.intro__label[data-anchor="below-right"] > span { top: 14px; left: -4px; }
-@media (max-width: 600px) {
-  .intro__label > span i { display: none; }
-  .intro__label > span { font-size: .6rem; }
-}
-
-/* the name, shown with the button once the constellation is drawn */
-.intro__title { font-family: var(--font-display); font-size: clamp(2.6rem, 6vw, 4.2rem); line-height: 1; letter-spacing: -.01em; }
-.intro__title em { color: #D4A97A; }
-.intro__title + .intro__tag { margin-top: -.6rem; }
-.intro--static .intro__title { display: none; }
-.intro--static .intro__title + .intro__tag { margin-top: 0; }
-@media (max-height: 640px) {
-  .intro__title { font-size: 2.2rem; }
-  .intro__hint { display: none; }
-}
 .intro__bottom {
   position: absolute;
   z-index: 2;
