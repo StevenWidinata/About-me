@@ -142,10 +142,55 @@ const t = (s) => (lang === 'id' && ID[s]) || s;
   const pointer = { x: -9999, y: -9999 };
   let held = null, prev = null;
 
+  // far "dust": many tiny faint stars behind the draggable ones. Painted once to an
+  // offscreen canvas, then drifted with a slow scroll parallax. A few of them twinkle.
+  const dustCanvas = document.createElement('canvas');
+  const dctx = dustCanvas.getContext('2d');
+  let dust = [], twinklers = [];
+
   const triplet = (cs, k) => cs.getPropertyValue(k).split(',').map(Number);
   const readColors = () => {
     const cs = getComputedStyle(document.documentElement);
     base = triplet(cs, '--star').join(','); warm = triplet(cs, '--star-warm').join(',');
+    if (dust.length) paintDust();
+  };
+
+  const paintDust = () => {
+    dustCanvas.width = w * dpr; dustCanvas.height = h * dpr;
+    dctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    dctx.clearRect(0, 0, w, h);
+    for (const d of dust) {
+      if (d.tw !== null) continue;
+      dctx.fillStyle = `rgba(${d.warm ? warm : base}, ${d.a})`;
+      dctx.beginPath(); dctx.arc(d.x, d.y, d.r, 0, Math.PI * 2); dctx.fill();
+    }
+  };
+
+  const buildDust = (ow, oh) => {
+    if (ow) dust.forEach((d) => { d.x *= w / ow; d.y *= h / oh; });
+    else {
+      const count = Math.min(w < 700 ? 220 : 420, Math.round((w * h) / 3200));
+      dust = Array.from({ length: count }, () => ({
+        x: Math.random() * w, y: Math.random() * h,
+        r: Math.random() * .55 + .2, a: Math.random() * .3 + .12, warm: Math.random() < .2,
+        tw: !reduceMotion && Math.random() < .15 ? Math.random() * Math.PI * 2 : null,
+      }));
+    }
+    twinklers = dust.filter((d) => d.tw !== null);
+    paintDust();
+  };
+
+  const drawDust = (t) => {
+    const off = reduceMotion ? 0 : (scrollY * .04) % h;
+    ctx.drawImage(dustCanvas, 0, -off, w, h);
+    if (off) ctx.drawImage(dustCanvas, 0, h - off, w, h);
+    for (const d of twinklers) {
+      let y = d.y - off;
+      if (y < 0) y += h;
+      const a = d.a + .4 * (.5 + .5 * Math.sin(t / 650 + d.tw));
+      ctx.fillStyle = `rgba(${d.warm ? warm : base}, ${a})`;
+      ctx.beginPath(); ctx.arc(d.x, y, d.r + .25, 0, Math.PI * 2); ctx.fill();
+    }
   };
 
   const resize = () => {
@@ -154,6 +199,7 @@ const t = (s) => (lang === 'id' && ID[s]) || s;
     w = innerWidth; h = innerHeight;
     canvas.width = w * dpr; canvas.height = h * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    buildDust(ow, oh);
     if (ow) { stars.forEach((s) => { s.x *= w / ow; s.y *= h / oh; }); return; }
     const count = Math.min(140, Math.round((w * h) / 9500));
     const drift = reduceMotion ? 0 : .18;
@@ -166,6 +212,7 @@ const t = (s) => (lang === 'id' && ID[s]) || s;
 
   const draw = (t) => {
     ctx.clearRect(0, 0, w, h);
+    drawDust(t);
     for (const s of stars) {
       if (s !== held) {
         // thrown velocity decays back to the gentle drift
