@@ -632,11 +632,7 @@ html.intro-on .reveal-in { animation: none; opacity: 0; }
 
 /* ---------- Projects: a hallway of doors (always dark, like a gallery room) ---------- */
 .projects { padding-bottom: 0; }
-.doors__head { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 1.5rem; }
 .doors__head .section-head { margin-bottom: 0; }
-.doors__count { font-family: var(--font-mono); font-size: .74rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); text-align: right; line-height: 1.7; }
-.doors__count b { color: var(--text); font-weight: 500; }
-@media (max-width: 700px) { .doors__head { grid-template-columns: minmax(0, 1fr); } .doors__count { text-align: left; } }
 
 .hall { --floor: 6.75rem; position: relative; overflow: hidden; margin-top: clamp(2rem, 4vw, 3rem); color: var(--night-text); }
 .hall::before {

@@ -69,7 +69,6 @@ const ID = {
   'Problem Solving': 'Pemecahan Masalah',
   'Responsibility': 'Tanggung Jawab',
   'Tech I work with': 'Teknologi yang saya gunakan',
-  'Algorithms': 'Algoritma',
 
   // journey
   'My journey': 'Perjalanan saya',
@@ -110,8 +109,6 @@ const ID = {
   'Pick a <em>door.</em>': 'Pilih sebuah <em>pintu.</em>',
   'Each one opens onto something I built. Three are open now. The last one stays locked while my next project is being built.':
     'Setiap pintu membuka sesuatu yang saya buat. Tiga sudah terbuka. Pintu terakhir masih terkunci karena proyek berikutnya sedang saya buat.',
-  'open': 'terbuka',
-  'coming soon': 'segera hadir',
   'Open the door to Mewing Academy': 'Buka pintu ke Mewing Academy',
   'Open the door to ZeroSignal': 'Buka pintu ke ZeroSignal',
   'Coming soon. This door is locked.': 'Segera hadir. Pintu ini masih terkunci.',
