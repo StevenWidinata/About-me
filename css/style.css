@@ -913,6 +913,17 @@ html.intro-on .reveal-in { animation: none; opacity: 0; }
 @media (max-width: 860px) { .room__inner { grid-template-columns: minmax(0, 1fr); } }
 html.room-open { overflow: hidden; }
 
+/* ---------- Link to the 3D gallery of every project ---------- */
+.gallery-link {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  margin-top: clamp(2rem, 4vw, 3rem);
+}
+.gallery-link p { font-family: var(--font-display); font-size: clamp(1.4rem, 2.6vw, 1.9rem); line-height: 1.2; }
+
 /* ---------- More work: smaller projects as ruled rows under the hall ---------- */
 .more { margin-top: clamp(2.5rem, 5vw, 3.5rem); }
 .more .label { margin-bottom: 1rem; }

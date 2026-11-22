@@ -131,6 +131,8 @@ const ID = {
   'Bookkeeping for a small shop: stock, sales, debts and monthly reports.': 'Pembukuan untuk toko kecil: stok, penjualan, hutang, dan laporan bulanan.',
   'Code ↗': 'Kode ↗',
   'Team': 'Tim',
+  "Every project I've made, hung in a 3D gallery.": 'Semua proyek saya, dipajang di galeri 3D.',
+  'Walk the whole gallery': 'Jelajahi seluruh galeri',
   'A course platform whose AI tutor guides you with hints instead of answers.': 'Platform kursus dengan tutor AI yang membimbing lewat petunjuk, bukan jawaban.',
   'Checks an online store for fraud risk with machine learning.': 'Memeriksa risiko penipuan sebuah toko online dengan machine learning.',
   'An Android app that counts the reels you watch, with pixel mascots.': 'Aplikasi Android yang menghitung reels yang kamu tonton, dengan maskot piksel.',
