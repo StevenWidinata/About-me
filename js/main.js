@@ -210,9 +210,59 @@ const t = (s) => (lang === 'id' && ID[s]) || s;
     }));
   };
 
+  // a comet every 18–40 s: bright head, tapered tail, one at a time
+  let comet = null, nextComet = 0;
+  const spawnComet = (t) => {
+    const ang = (20 + Math.random() * 20) * Math.PI / 180;
+    const dir = Math.random() < .5 ? 1 : -1; // left-to-right or right-to-left
+    const speed = .35 + Math.random() * .3;   // px per ms
+    comet = {
+      x: dir > 0 ? Math.random() * w * .55 - w * .1 : w * .55 + Math.random() * w * .55,
+      y: -30 - Math.random() * h * .15,
+      vx: Math.cos(ang) * speed * dir, vy: Math.sin(ang) * speed,
+      len: 160 + Math.random() * 120, t0: t, warm: Math.random() < .5,
+    };
+  };
+  const drawComet = (t) => {
+    if (reduceMotion) return;
+    if (!nextComet) nextComet = t + 6000;
+    if (!comet) {
+      if (t < nextComet || document.documentElement.classList.contains('room-open')) return;
+      spawnComet(t);
+    }
+    const e = t - comet.t0;
+    const x = comet.x + comet.vx * e, y = comet.y + comet.vy * e;
+    if (x < -comet.len - 40 || x > w + comet.len + 40 || y > h + comet.len + 40) {
+      comet = null;
+      nextComet = t + 18000 + Math.random() * 22000;
+      return;
+    }
+    const sp = Math.hypot(comet.vx, comet.vy), ux = comet.vx / sp, uy = comet.vy / sp;
+    const tx = x - ux * comet.len, ty = y - uy * comet.len;
+    const c = comet.warm ? warm : base, fade = Math.min(1, e / 300);
+    // tail: a thin triangle from the head back to a point, fading out
+    const g = ctx.createLinearGradient(x, y, tx, ty);
+    g.addColorStop(0, `rgba(${c}, ${.85 * fade})`);
+    g.addColorStop(1, `rgba(${c}, 0)`);
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.moveTo(x - uy * 2, y + ux * 2);
+    ctx.lineTo(x + uy * 2, y - ux * 2);
+    ctx.lineTo(tx, ty);
+    ctx.closePath(); ctx.fill();
+    // head: a soft glow around a bright core
+    const hg = ctx.createRadialGradient(x, y, 0, x, y, 9);
+    hg.addColorStop(0, `rgba(${base}, ${fade})`);
+    hg.addColorStop(.3, `rgba(${c}, ${.45 * fade})`);
+    hg.addColorStop(1, `rgba(${c}, 0)`);
+    ctx.fillStyle = hg;
+    ctx.beginPath(); ctx.arc(x, y, 9, 0, Math.PI * 2); ctx.fill();
+  };
+
   const draw = (t) => {
     ctx.clearRect(0, 0, w, h);
     drawDust(t);
+    drawComet(t);
     for (const s of stars) {
       if (s !== held) {
         // thrown velocity decays back to the gentle drift
