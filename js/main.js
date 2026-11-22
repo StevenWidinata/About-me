@@ -325,7 +325,7 @@ const PROJECTS = {
     img: 'assets/covers/mewing-academy.jpg',
     host: 'mewing-academy-beta.vercel.app',
     url: 'https://mewing-academy-beta.vercel.app',
-    code: 'https://github.com/stevenwidinata-sys/Mewing-Academy',
+    code: 'https://github.com/StevenWidinata/Mewing-Academy',
     desc: 'An accessible, AI-powered learning playground for kids. Students answer with their hands: on-device camera AI reads their gestures, so learning stays inclusive for every ability.',
     points: [
       'Students answer questions with hand gestures',
@@ -340,7 +340,7 @@ const PROJECTS = {
     img: 'assets/covers/zerosignal.jpg',
     host: 'zerosignal-three.vercel.app',
     url: 'https://zerosignal-three.vercel.app',
-    code: 'https://github.com/stevenwidinata-sys/ZeroSignal',
+    code: 'https://github.com/StevenWidinata/ZeroSignal',
     desc: 'A collection of quick arcade games for killing boredom, with real leaderboards. Every score is checked by the server, so nobody can cheat their way to the top.',
     points: [
       'Nine games, from a full-physics slingshot game to Chess and Snake',
@@ -356,7 +356,7 @@ const PROJECTS = {
     img: 'assets/covers/glitch-type.jpg',
     host: 'glitch-type.vercel.app',
     url: 'https://glitch-type.vercel.app',
-    code: 'https://github.com/stevenwidinata-sys/glitch_type',
+    code: 'https://github.com/StevenWidinata/glitch_type',
     desc: 'A neon typing trainer that plays like an arcade. Shoot down word asteroids from a black hole or repair a corrupted transmission before it breaks. No login: everything runs in the browser.',
     points: [
       'Pick a mode by grabbing a crate with a claw machine',
