@@ -37,7 +37,6 @@ const ID = {
     'Saya memimpin, membimbing, dan membangun. Saya mengubah rasa ingin tahu menjadi proyek, komunitas, dan keterampilan baru, satu bintang demi satu bintang.',
   'See my work': 'Lihat karya saya',
   'Download CV': 'Unduh CV',
-  'Psst, try dragging the stars.': 'Psst, coba tarik bintang-bintangnya.',
   'Steven looking out at the sea': 'Steven memandang ke arah laut',
 
   // about
