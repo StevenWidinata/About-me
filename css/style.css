@@ -16,7 +16,7 @@
   --header-h: 4.5rem;
   --ease: cubic-bezier(.22, 1, .36, 1);
 
-  /* Always-dark pieces (intro, door hall) use these in both themes */
+  /* Night tones for the intro and the door hall */
   --night: #0E0C0A;
   --night-2: #16120F;
   --night-line: #2C251F;
@@ -26,9 +26,8 @@
   --brass-lo: #96703E;
 }
 
-/* Dark (default) */
-:root,
-[data-theme="dark"] {
+/* Colours (dark only) */
+:root {
   color-scheme: dark;
   --bg: #0E0C0A;
   --surface: #161210;
@@ -46,24 +45,6 @@
   --star-warm: 212, 169, 122;
 }
 
-/* Light */
-[data-theme="light"] {
-  color-scheme: light;
-  --bg: #F7F3EE;
-  --surface: #FFFDF9;
-  --surface-2: #F0E9E0;
-  --border: #E3D9CC;
-  --border-strong: #CBBBA8;
-  --text: #15110D;
-  --muted: #685E55;
-  --accent: #8A5A35;
-  --accent-2: #6E4527;
-  --on-accent: #F7F3EE;
-  --header-bg: rgba(247, 243, 238, .82);
-  --shadow: 0 24px 60px -30px rgba(70, 45, 20, .28);
-  --star: 70, 52, 38;
-  --star-warm: 150, 100, 60;
-}
 
 /* ---------- Base ---------- */
 *,
@@ -216,15 +197,6 @@ strong { font-weight: 600; }
 }
 .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
 .lang-toggle { font-family: var(--font-mono); font-size: .72rem; font-weight: 500; letter-spacing: .06em; }
-
-/* ---------- Theme toggle ---------- */
-.theme-toggle { position: relative; overflow: hidden; }
-.theme-toggle .icon { position: absolute; width: 1.05rem; height: 1.05rem; transition: transform .5s var(--ease), opacity .3s; }
-[data-theme="dark"] .icon--sun,
-[data-theme="light"] .icon--moon { transform: translateY(140%) rotate(90deg); opacity: 0; }
-
-::view-transition-old(root),
-::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 
 /* ---------- Intro: my journey as a constellation, then warp in (always dark) ---------- */
 .intro { display: none; }

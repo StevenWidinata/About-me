@@ -17,7 +17,6 @@ const ID = {
   'Journey': 'Perjalanan',
   'Projects': 'Proyek',
   'Contact': 'Kontak',
-  'Toggle dark and light mode': 'Ganti mode gelap dan terang',
   'Open menu': 'Buka menu',
   'Close menu': 'Tutup menu',
   'Copied to clipboard': 'Disalin ke clipboard',
