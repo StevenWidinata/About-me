@@ -40,22 +40,29 @@
   </script>
 </head>
 <body>
-  <!-- ================= INTRO: stars form my name, then warp into the site ================= -->
+  <!-- ================= INTRO: my journey as a constellation, then warp into the site ================= -->
   <div class="intro" role="dialog" aria-modal="true" aria-label="Welcome">
     <canvas class="intro__canvas" aria-hidden="true"></canvas>
+    <div class="intro__labels" aria-hidden="true">
+      <span class="intro__label" data-anchor="left"><span><b>2013</b> SD<i> Santa Maria Fatima</i></span></span>
+      <span class="intro__label" data-anchor="below-left"><span><b>2019</b> SMP<i> Santa Maria Fatima</i></span></span>
+      <span class="intro__label" data-anchor="below-right"><span><b>2022</b> SMA<i> Fons Vitae 1</i></span></span>
+      <span class="intro__label" data-anchor="above"><span><b>2026</b> BINUS<i> University</i></span></span>
+    </div>
     <p class="intro__name" aria-hidden="true">Steven<br><em>Widinata</em></p>
     <div class="intro__top">
       <span>Steven Widinata · Portfolio</span>
       <button class="intro__skip" type="button">Skip intro</button>
     </div>
     <div class="intro__bottom">
+      <p class="intro__title">Steven <em>Widinata</em></p>
       <p class="intro__tag">Curious Mind, Endless Possibilities.</p>
       <button class="intro__start" type="button">
         <span>Start my journey</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </button>
-      <p class="intro__hint intro__hint--mouse">Move your cursor through the stars</p>
-      <p class="intro__hint intro__hint--touch">Touch the stars</p>
+      <p class="intro__hint intro__hint--mouse">Point at a star to see its chapter</p>
+      <p class="intro__hint intro__hint--touch">Tap a star to see its chapter</p>
     </div>
   </div>
   <div class="flash" aria-hidden="true"></div>

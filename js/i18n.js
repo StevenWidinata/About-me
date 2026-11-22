@@ -28,8 +28,8 @@ const ID = {
   'Steven Widinata · Portfolio': 'Steven Widinata · Portofolio',
   'Skip intro': 'Lewati intro',
   'Start my journey': 'Mulai perjalanan saya',
-  'Move your cursor through the stars': 'Gerakkan kursor di antara bintang',
-  'Touch the stars': 'Sentuh bintang-bintangnya',
+  'Point at a star to see its chapter': 'Arahkan kursor ke bintang untuk melihat babnya',
+  'Tap a star to see its chapter': 'Ketuk bintang untuk melihat babnya',
   'Replay intro': 'Putar ulang intro',
 
   // hero

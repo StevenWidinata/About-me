@@ -1,4 +1,6 @@
-// Steven Widinata — 3D intro: stars swirl into my name, then warp into the site.
+// Steven Widinata — 3D intro: my journey drawn as a constellation, then a warp into the site.
+// A line traces an "S" and a "W" star by star; four of the stars are chapters (SD, SMP, SMA, BINUS)
+// and light up with their year as the line reaches them. Click and the camera flies into the last one.
 // Plays once per browser session. Skipped for deep links (#section) and reduced motion.
 'use strict';
 
@@ -11,17 +13,30 @@ const Intro = (() => {
   const canvas = root.querySelector('.intro__canvas');
   const startBtn = root.querySelector('.intro__start');
   const skipBtn = root.querySelector('.intro__skip');
+  const labels = [...root.querySelectorAll('.intro__label')];
   const flash = document.querySelector('.flash');
   const site = document.querySelector('.site');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 
   const CAM_Z = 100, FOV = 60, STAR = 1400, LINES = 600;
+
+  // The constellation, traced as one path: an S, then a W. Units: letter height = 1.
+  const SHAPE = [
+    [-.28, .40], [-.45, .50], [-.68, .48], [-.80, .30], [-.66, .10], [-.44, -.04], [-.30, -.24], [-.40, -.44], [-.62, -.50], [-.82, -.38],
+    [.00, .50], [.20, -.50], [.45, .15], [.70, -.50], [.92, .50],
+  ];
+  const CHAPTERS = { 3: 0, 8: 1, 11: 2, 14: 3 }; // path index -> label index (2013, 2019, 2022, 2026)
+  const BRIDGE = 9;                               // the pen lifts between the S and the W (no line drawn)
+  const T0 = .45, T_DRAW = 2.5;                 // when the line starts, and how long it takes
+
   let gl, renderer, scene, camera, group, sprite;
-  let textGeo, textMat, textPts, N = 0, B, S, O, V, D, P;   // name particles: base, start, offset, velocity, delay, phase
-  let starGeo, SP, lineGeo, lineMat, LP, LZ;                // background stars, warp streaks
+  let con, PTS = [], cum = [], total = 1, nodes = [], segGeo, SEG, hot = -1; // the constellation
+  let starGeo, SP, lineGeo, lineMat, LP, LZ;                                  // background stars, warp streaks
   let visW = 0, visH = 0, state = 'off', tStart = 0, tWarp = 0, last = 0, raf = 0, readyTimer = 0;
-  const m = { nx: 0, ny: 0, wx: 1e4, wy: 1e4, on: false };
+  const m = { nx: 0, ny: 0, sx: -1e4, sy: -1e4 };
+  const v3 = { x: 0, y: 0 };
 
   /* ---------- setup ---------- */
   let loading = null;
@@ -62,7 +77,7 @@ const Intro = (() => {
     if (reduce || !webglOk()) { gl = false; return; }
     try {
       await Promise.race([loadThree(), wait(6000).then(() => { throw new Error('three.js timed out'); })]);
-      renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
       renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
       renderer.setClearColor(0x0E0C0A, 1);
       scene = new THREE.Scene();
@@ -71,7 +86,6 @@ const Intro = (() => {
       group = new THREE.Group();
       scene.add(group);
       sprite = makeSprite();
-      textMat = new THREE.PointsMaterial({ size: 1, map: sprite, vertexColors: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
       size();
       buildStars();
       buildLines();
@@ -90,80 +104,108 @@ const Intro = (() => {
     visW = visH * camera.aspect;
   }
 
-  /* ---------- the name, sampled from text drawn on a 2D canvas ---------- */
-  function sampleName() {
-    const two = innerWidth / innerHeight < 1.15;
-    const lines = two ? ['Steven', 'Widinata'] : ['Steven Widinata'];
-    const W = 1600, H = two ? 900 : 440;
-    const c = document.createElement('canvas');
-    c.width = W; c.height = H;
-    const g = c.getContext('2d');
-    const font = (px) => `400 ${px}px "Instrument Serif", Georgia, serif`;
-    let px = two ? 380 : 270;
-    g.font = font(px);
-    const widest = Math.max(...lines.map((l) => g.measureText(l).width));
-    if (widest > W * .94) { px *= W * .94 / widest; g.font = font(px); }
-    g.fillStyle = '#fff';
-    g.textAlign = 'center';
-    g.textBaseline = 'middle';
-    lines.forEach((l, i) => g.fillText(l, W / 2, H / 2 + (i - (lines.length - 1) / 2) * px * .92));
+  /* ---------- the constellation ---------- */
+  const glow = (color, opacity = 1) => new THREE.Sprite(new THREE.SpriteMaterial({
+    map: sprite, color, transparent: true, opacity, blending: THREE.AdditiveBlending, depthWrite: false,
+  }));
 
-    const data = g.getImageData(0, 0, W, H).data;
-    let filled = 0;
-    for (let i = 3; i < data.length; i += 16) if (data[i] > 128) filled++;
-    filled *= 4;
-    const target = innerWidth < 700 ? 3400 : 7000;
-    const step = Math.max(2, Math.round(Math.sqrt(filled / target)));
-    const pts = [];
-    let minX = W, maxX = 0, minY = H, maxY = 0;
-    for (let y = 0; y < H; y += step) {
-      for (let x = 0; x < W; x += step) {
-        if (data[(y * W + x) * 4 + 3] > 128) {
-          pts.push(x, y);
-          if (x < minX) minX = x; if (x > maxX) maxX = x;
-          if (y < minY) minY = y; if (y > maxY) maxY = y;
-        }
+  function buildConstellation() {
+    if (con) {
+      group.remove(con);
+      con.traverse((o) => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); });
+    }
+    con = new THREE.Group();
+    const unit = Math.min(visW * .56 / 1.74, visH * .32), lift = visH * .14;
+    PTS = SHAPE.map(([x, y]) => new THREE.Vector3((x - .05) * unit, y * unit + lift, 0));
+    cum = [0];
+    for (let i = 1; i < PTS.length; i++) cum[i] = cum[i - 1] + PTS[i].distanceTo(PTS[i - 1]);
+    total = cum[cum.length - 1];
+
+    // the line: one segment per hop, grown each frame
+    SEG = new Float32Array((PTS.length - 1) * 6);
+    const col = new Float32Array(SEG.length);
+    for (let i = 0; i < PTS.length - 1; i++) {
+      const k = i === BRIDGE ? 0 : .7;
+      col.set([.95 * k, .9 * k, .82 * k, .95 * k, .9 * k, .82 * k], i * 6);
+    }
+    segGeo = new THREE.BufferGeometry();
+    segGeo.setAttribute('position', new THREE.BufferAttribute(SEG, 3).setUsage(THREE.DynamicDrawUsage));
+    segGeo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    con.add(new THREE.LineSegments(segGeo, new THREE.LineBasicMaterial({
+      vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false,
+    })));
+
+    // the stars: chapters are bigger, brass, and send out a slow pulse
+    nodes = PTS.map((p, i) => {
+      const ch = CHAPTERS[i] ?? -1;
+      const s = glow(ch >= 0 ? 0xE9CD93 : 0xF2EDE6);
+      s.position.copy(p);
+      s.scale.setScalar(.0001);
+      con.add(s);
+      let halo = null;
+      if (ch >= 0) {
+        halo = glow(0xD4A97A, 0);
+        halo.position.copy(p);
+        con.add(halo);
       }
-    }
-    return { pts, minX, maxX, minY, maxY, step };
+      return { s, halo, ch, at: cum[i], size: unit * (ch >= 0 ? .17 : .09), lit: -1, sx: -1e4, sy: -1e4 };
+    });
+    group.add(con);
   }
 
-  function buildText() {
-    const s = sampleName(), pts = s.pts;
-    N = pts.length / 2;
-    const tw = (s.maxX - s.minX) || 1, th = (s.maxY - s.minY) || 1;
-    const scale = Math.min(visW * .8 / tw, visH * .42 / th);
-    const cx = (s.minX + s.maxX) / 2, cy = (s.minY + s.maxY) / 2;
-    const lift = visH * .07, jit = s.step * scale * .5;
-    B = new Float32Array(N * 3); S = new Float32Array(N * 3); O = new Float32Array(N * 3); V = new Float32Array(N * 3);
-    D = new Float32Array(N); P = new Float32Array(N);
-    const pos = new Float32Array(N * 3), col = new Float32Array(N * 3);
-    // mostly bone white, some tan and caramel
-    const pal = [[.95, .93, .9], [.95, .93, .9], [.95, .93, .9], [.83, .66, .48], [.69, .51, .35]];
-    for (let i = 0; i < N; i++) {
-      const k = i * 3;
-      B[k] = (pts[i * 2] - cx) * scale + (Math.random() - .5) * jit;
-      B[k + 1] = -(pts[i * 2 + 1] - cy) * scale + lift + (Math.random() - .5) * jit;
-      B[k + 2] = (Math.random() - .5) * 2.5;
-      const r = 90 + Math.random() * 260, a = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1);
-      S[k] = r * Math.sin(ph) * Math.cos(a);
-      S[k + 1] = r * Math.sin(ph) * Math.sin(a) * .7;
-      S[k + 2] = -Math.abs(r * Math.cos(ph)) - 40;
-      D[i] = Math.random() * .8 + (B[k] / visW + .5) * .4; // letters settle roughly left to right
-      P[i] = Math.random() * Math.PI * 2;
-      col.set(pal[(Math.random() * pal.length) | 0], k);
-      pos[k] = S[k]; pos[k + 1] = S[k + 1]; pos[k + 2] = S[k + 2];
+  // where a star sits on screen right now (follows the tilt)
+  const project = (obj) => {
+    const v = obj.getWorldPosition(new THREE.Vector3()).project(camera);
+    v3.x = (v.x + 1) / 2 * innerWidth;
+    v3.y = (1 - v.y) / 2 * innerHeight;
+    return v3;
+  };
+
+  function updateConstellation(t) {
+    const p = clamp((t - T0) / T_DRAW, 0, 1);
+    const e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+    const L = e * total;
+    for (let i = 0; i < PTS.length - 1; i++) {
+      const a = PTS[i], b = PTS[i + 1], k = i * 6;
+      const f = clamp((L - cum[i]) / (cum[i + 1] - cum[i] || 1), 0, 1);
+      SEG[k] = a.x; SEG[k + 1] = a.y; SEG[k + 2] = a.z;
+      SEG[k + 3] = a.x + (b.x - a.x) * f; SEG[k + 4] = a.y + (b.y - a.y) * f; SEG[k + 5] = 0;
     }
-    if (textPts) { group.remove(textPts); textGeo.dispose(); }
-    textGeo = new THREE.BufferGeometry();
-    textGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3).setUsage(THREE.DynamicDrawUsage));
-    textGeo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-    textMat.size = Math.max(.9, s.step * scale * 1.7);
-    textMat.opacity = .95;
-    textPts = new THREE.Points(textGeo, textMat);
-    group.add(textPts);
+    segGeo.attributes.position.needsUpdate = true;
+
+    group.updateMatrixWorld();
+    let best = 34, nextHot = -1;
+    nodes.forEach((n, i) => {
+      if (n.lit < 0 && t >= T0 && L >= n.at - .001) {
+        n.lit = t;
+        if (n.ch >= 0) labels[n.ch].classList.add('is-on');
+      }
+      let k = 0;
+      if (n.lit >= 0) {
+        const a = (t - n.lit) / .4;
+        k = a < 1 ? a + Math.sin(a * Math.PI) * .5 : 1 + Math.sin(t * 2.2 + i) * .07; // pop, then a soft twinkle
+      }
+      if (i === hot) k *= 1.6;
+      n.s.scale.setScalar(Math.max(.0001, n.size * k));
+      if (n.halo) {
+        const ph = n.lit >= 0 ? ((t - n.lit) % 2.6) / 2.6 : 0;
+        n.halo.scale.setScalar(n.size * (1 + ph * 2.4));
+        n.halo.material.opacity = n.lit >= 0 ? (1 - ph) * .45 : 0;
+      }
+      const s = project(n.s);
+      n.sx = s.x; n.sy = s.y;
+      if (n.ch >= 0) labels[n.ch].style.transform = `translate(${s.x}px, ${s.y}px)`;
+      const d = Math.hypot(s.x - m.sx, s.y - m.sy);
+      if (n.lit >= 0 && d < best) { best = d; nextHot = i; }
+    });
+    if (nextHot !== hot) {
+      hot = nextHot;
+      labels.forEach((l, j) => l.classList.toggle('is-hot', hot >= 0 && nodes[hot].ch === j));
+      root.classList.toggle('is-pointing', hot >= 0);
+    }
   }
 
+  /* ---------- background stars and warp streaks ---------- */
   function buildStars() {
     SP = new Float32Array(STAR * 3);
     const col = new Float32Array(STAR * 3);
@@ -206,43 +248,22 @@ const Intro = (() => {
     last = now;
 
     if (state === 'form') {
-      // particles swirl in from a sphere and settle into the letters; the cursor pushes them away
-      const pos = textGeo.attributes.position.array;
-      const t = (now - tStart) / 1000, R = visW * .075, R2 = R * R, damp = Math.pow(.9, dt);
-      for (let i = 0; i < N; i++) {
-        const k = i * 3;
-        let p = (t - D[i]) / 2.1;
-        p = p < 0 ? 0 : p > 1 ? 1 : p;
-        const e = 1 - Math.pow(1 - p, 3);
-        const x = S[k] + (B[k] - S[k]) * e, y = S[k + 1] + (B[k + 1] - S[k + 1]) * e;
-        let z = S[k + 2] + (B[k + 2] - S[k + 2]) * e;
-        const a = (1 - e) * 2.4, ca = Math.cos(a), sa = Math.sin(a);
-        const rx = x * ca - y * sa, ry = x * sa + y * ca;
-        z += Math.sin(t * 1.3 + P[i]) * .7 * e;
-        if (m.on && e > .9) {
-          const dx = rx + O[k] - m.wx, dy = ry + O[k + 1] - m.wy, d2 = dx * dx + dy * dy;
-          if (d2 < R2) {
-            const d = Math.sqrt(d2) || 1, f = (1 - d / R) * 1.8 * dt;
-            O[k] += dx / d * f; O[k + 1] += dy / d * f; O[k + 2] += f * 1.6;
-          }
-        }
-        O[k] *= damp; O[k + 1] *= damp; O[k + 2] *= damp;
-        pos[k] = rx + O[k]; pos[k + 1] = ry + O[k + 1]; pos[k + 2] = z + O[k + 2];
-      }
-      textGeo.attributes.position.needsUpdate = true;
+      updateConstellation((now - tStart) / 1000);
       for (let i = 0; i < STAR; i++) { const k = i * 3 + 2; SP[k] += .06 * dt; if (SP[k] > 20) SP[k] -= 1020; }
       starGeo.attributes.position.needsUpdate = true;
       const ry = m.nx * .22 + Math.sin(now * .0003) * .04, rx = -m.ny * .12;
       group.rotation.y += (ry - group.rotation.y) * .04 * dt;
       group.rotation.x += (rx - group.rotation.x) * .04 * dt;
     } else if (state === 'warp') {
-      // the name bursts outward, stars stretch into streaks, the view widens, then a soft flash
-      const pos = textGeo.attributes.position.array;
+      // fly into the 2026 star: the constellation grows around it while it slides to the centre,
+      // stars stretch into streaks, the view widens, then a soft flash
       const t = (now - tWarp) / 1000, s = Math.min(1, t / 1.5);
-      const speed = (1.5 + 60 * s * s) * dt, boost = (1 + t * 5) * dt;
-      for (let i = 0; i < N * 3; i++) pos[i] += V[i] * boost;
-      textGeo.attributes.position.needsUpdate = true;
-      textMat.opacity = Math.max(0, .95 - t * .7);
+      const z = 1 + 9 * s * s * s, P = PTS[PTS.length - 1];
+      con.scale.setScalar(z);
+      con.position.set(-P.x * z + P.x * (1 - s), -P.y * z + P.y * (1 - s), 0);
+      const fade = Math.max(0, 1 - t * .85);
+      con.children.forEach((o) => { if (!o.isSprite || o.material.opacity > fade) o.material.opacity = fade; });
+      const speed = (1.5 + 60 * s * s) * dt;
       for (let i = 0; i < STAR; i++) { const k = i * 3 + 2; SP[k] += speed * .7; if (SP[k] > 20) SP[k] -= 1020; }
       starGeo.attributes.position.needsUpdate = true;
       const len = speed * 6;
@@ -279,10 +300,10 @@ const Intro = (() => {
 
   async function begin() {
     lockSite(true);
-    root.classList.remove('is-ready', 'is-warping', 'is-leaving');
+    root.classList.remove('is-ready', 'is-warping', 'is-leaving', 'is-pointing');
+    labels.forEach((l) => l.classList.remove('is-on', 'is-hot'));
     state = 'loading';
-    const fonts = document.fonts ? Promise.race([document.fonts.load('400 120px "Instrument Serif"'), wait(1800)]).catch(() => {}) : null;
-    await Promise.all([setup(), fonts]);
+    await setup();
     if (state !== 'loading') return; // skipped while loading
     clearTimeout(readyTimer);
     if (!gl) {
@@ -294,13 +315,14 @@ const Intro = (() => {
     root.classList.remove('intro--static');
     size();
     group.rotation.set(0, 0, 0);
-    buildText();
+    buildConstellation();
+    hot = -1;
     lineMat.opacity = 0;
     for (let i = 0; i < LINES; i++) resetLine(i, true);
     lineGeo.attributes.position.needsUpdate = true;
     state = 'form';
     tStart = last = performance.now();
-    readyTimer = setTimeout(ready, 2100);
+    readyTimer = setTimeout(ready, (T0 + T_DRAW + .3) * 1000);
     cancelAnimationFrame(raf);
     raf = requestAnimationFrame(loop);
   }
@@ -311,12 +333,7 @@ const Intro = (() => {
       tWarp = last = performance.now();
       clearTimeout(readyTimer);
       root.classList.add('is-warping');
-      root.classList.remove('is-ready');
-      const pos = textGeo.attributes.position.array;
-      for (let i = 0; i < N; i++) {
-        const k = i * 3, d = Math.hypot(pos[k], pos[k + 1]) || 1, sp = .4 + Math.random() * 1.1;
-        V[k] = pos[k] / d * sp; V[k + 1] = pos[k + 1] / d * sp; V[k + 2] = 1 + Math.random() * 2.5;
-      }
+      root.classList.remove('is-ready', 'is-pointing');
     } else if (state === 'static') {
       state = 'warp';
       root.classList.add('is-warping');
@@ -346,21 +363,21 @@ const Intro = (() => {
     setTimeout(() => {
       cancelAnimationFrame(raf);
       state = 'off';
-      root.classList.remove('is-leaving', 'is-ready', 'is-warping');
+      root.classList.remove('is-leaving', 'is-ready', 'is-warping', 'is-pointing');
       lockSite(false);
       remember();
     }, reduce ? 0 : 560);
   }
 
   /* ---------- input ---------- */
-  root.addEventListener('pointermove', (e) => {
+  const point = (e) => {
     m.nx = e.clientX / innerWidth * 2 - 1;
     m.ny = -(e.clientY / innerHeight * 2 - 1);
-    m.wx = m.nx * visW / 2;
-    m.wy = m.ny * visH / 2;
-    m.on = true;
-  });
-  root.addEventListener('pointerleave', () => { m.on = false; m.nx = m.ny = 0; });
+    m.sx = e.clientX; m.sy = e.clientY;
+  };
+  root.addEventListener('pointermove', point);
+  root.addEventListener('pointerdown', point); // a tap picks a star on phones
+  root.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') { m.nx = m.ny = 0; m.sx = m.sy = -1e4; } });
   startBtn.addEventListener('click', start);
   skipBtn.addEventListener('click', skip);
   addEventListener('keydown', (e) => { if (e.key === 'Escape' && html.classList.contains('intro-on')) skip(); });
@@ -373,8 +390,12 @@ const Intro = (() => {
       size();
       if (state === 'form') {
         const formed = root.classList.contains('is-ready');
-        buildText();
-        if (formed) tStart = performance.now() - 10000; // already formed: skip the swirl
+        buildConstellation();
+        hot = -1;
+        if (formed) { // already drawn: rebuild it finished, without replaying the line
+          tStart = performance.now() - 10000;
+          nodes.forEach((n) => { n.lit = 0; });
+        }
       }
     }, 200);
   });
