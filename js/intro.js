@@ -563,8 +563,13 @@ const Intro = (() => {
         V[k + 1] = pos[k + 1] / d * sp + (Math.random() - .5) * vw * .25;
         V[k + 2] = (Math.random() - .35) * vw * .8;
       }
+      // dive from wherever you are: turn from what you're looking at towards the sun
+      glide = follow = null;
+      fly.keys.clear();
       camFrom = S.camera.position.clone();
-      lookFrom = new T.Vector3(0, 0, 0);
+      lookFrom = mouseMode
+        ? camFrom.clone().add(S.camera.getWorldDirection(new T.Vector3()).multiplyScalar(60))
+        : new T.Vector3(0, 0, 0);
       sunPos = S.sunWorld(new T.Vector3());
     } else if (state === 'static') {
       state = 'warp';
