@@ -143,9 +143,18 @@ const Intro = (() => {
     } else hover.lx = hover.ly = 1e4;
   }
 
+  /* ---------- free flight (computers only, once the name has formed) ---------- */
+  // phones keep "drag to orbit the whole scene"; with a mouse, the camera itself flies:
+  // drag looks around, the wheel and WASD / arrow keys move, the border sphere keeps you in
+  let mouseMode = false;
+  const fly = { on: false, touched: false, sway: 1, pos: null, vel: null, keys: new Set() };
+  let fwd, side, tmp, dn;
+  const pitchMax = () => (mouseMode ? 1.45 : 1.2);
+  const interact = () => { fly.touched = true; };
+
   const onUi = (e) => e.target.closest('button, a');
   root.addEventListener('pointerdown', (e) => {
-    if (onUi(e) || state !== 'form') return;
+    if (onUi(e) || state !== 'form' || (mouseMode && !fly.on)) return;
     Object.assign(orbit, { down: true, moved: false, x: e.clientX, y: e.clientY, id: e.pointerId, vy: 0, vp: 0 });
     root.setPointerCapture?.(e.pointerId);
   });
@@ -155,12 +164,84 @@ const Intro = (() => {
     if (!orbit.down) return;
     const dx = e.clientX - orbit.x, dy = e.clientY - orbit.y;
     if (!orbit.moved && Math.hypot(dx, dy) < 4) return;
-    if (!orbit.moved) { orbit.moved = true; root.classList.add('is-dragging'); }
+    if (!orbit.moved) { orbit.moved = true; root.classList.add('is-dragging'); interact(); }
     orbit.x = e.clientX; orbit.y = e.clientY;
-    orbit.yaw += dx * .0035;
-    orbit.pitch = clamp(orbit.pitch + dy * .0035, -1.2, 1.2);
-    orbit.vy = clamp(dx * .0035, -.04, .04); orbit.vp = clamp(dy * .0035, -.04, .04); // glide speed after release
+    const k = mouseMode ? .0022 : .0035; // looking around turns slower than orbiting the scene
+    orbit.yaw += dx * k;
+    orbit.pitch = clamp(orbit.pitch + dy * k, -pitchMax(), pitchMax());
+    orbit.vy = clamp(dx * k, -.04, .04); orbit.vp = clamp(dy * k, -.04, .04); // glide speed after release
   });
+  root.addEventListener('wheel', (e) => {
+    if (!fly.on || state !== 'form') return;
+    e.preventDefault();
+    const d = clamp(e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1), -120, 120);
+    S.camera.getWorldDirection(tmp);
+    fly.vel.addScaledVector(tmp, d * 1.4); // scroll down = fly forward
+    interact();
+  }, { passive: false });
+
+  const KEYS = { w: 'f', arrowup: 'f', s: 'b', arrowdown: 'b', a: 'l', arrowleft: 'l', d: 'r', arrowright: 'r' };
+  addEventListener('keydown', (e) => {
+    if (!fly.on || state !== 'form' || e.ctrlKey || e.metaKey || e.altKey) return;
+    const k = KEYS[e.key.toLowerCase()];
+    if (!k) return;
+    if (e.key.startsWith('Arrow')) e.preventDefault();
+    fly.keys.add(k);
+    interact();
+  });
+  addEventListener('keyup', (e) => { const k = KEYS[e.key.toLowerCase()]; if (k) fly.keys.delete(k); });
+  addEventListener('blur', () => fly.keys.clear());
+
+  // push the camera out of a sphere (the sun, a planet), or back inside one (the border)
+  function keepOut(c, min) {
+    dn.subVectors(fly.pos, c);
+    const l = dn.length();
+    if (l >= min) return;
+    dn.divideScalar(l || 1);
+    fly.pos.copy(c).addScaledVector(dn, min);
+    const v = fly.vel.dot(dn);
+    if (v < 0) fly.vel.addScaledVector(dn, -v);
+  }
+  function keepIn(c, max) {
+    dn.subVectors(fly.pos, c);
+    const l = dn.length();
+    if (l <= max) return;
+    dn.divideScalar(l);
+    fly.pos.copy(c).addScaledVector(dn, max);
+    const v = fly.vel.dot(dn);
+    if (v > 0) fly.vel.addScaledVector(dn, -v);
+  }
+
+  function updateFly(now, dt, f60) {
+    const cam = S.camera;
+    if (!orbit.down) {
+      orbit.yaw += orbit.vy * f60; orbit.vy *= Math.pow(.92, f60);
+      orbit.pitch = clamp(orbit.pitch + orbit.vp * f60, -pitchMax(), pitchMax()); orbit.vp *= Math.pow(.92, f60);
+    }
+    // the idle sway fades out as soon as you start exploring
+    if (fly.touched) fly.sway = Math.max(0, fly.sway - dt * 1.2);
+    const sw = fly.sway;
+    cam.rotation.set(orbit.pitch + Math.sin(now * .00023) * .012 * sw, orbit.yaw + Math.sin(now * .0003) * .02 * sw, 0);
+    if (fly.on) {
+      if (fly.keys.size) {
+        cam.getWorldDirection(fwd);
+        side.crossVectors(fwd, cam.up).normalize();
+        const a = 9 * f60;
+        if (fly.keys.has('f')) fly.vel.addScaledVector(fwd, a);
+        if (fly.keys.has('b')) fly.vel.addScaledVector(fwd, -a);
+        if (fly.keys.has('r')) fly.vel.addScaledVector(side, a);
+        if (fly.keys.has('l')) fly.vel.addScaledVector(side, -a);
+      }
+      if (fly.vel.length() > 260) fly.vel.setLength(260);
+      fly.pos.addScaledVector(fly.vel, dt);
+      fly.vel.multiplyScalar(Math.pow(.93, f60));
+      keepIn(S.BORDER_C, S.BORDER_R - 8);
+      keepOut(S.sunWorld(tmp), S.R_SUN * 1.8);
+      S.planets.forEach((p) => keepOut(p.mesh.getWorldPosition(tmp), p.r * 1.6));
+    }
+    cam.position.copy(fly.pos);
+    cam.updateMatrixWorld();
+  }
   const release = () => {
     orbit.down = false;
     root.classList.remove('is-dragging');
@@ -192,12 +273,15 @@ const Intro = (() => {
     const f60 = dt * 60;
     if (state === 'form') {
       const t = (now - tStart) / 1000;
-      // orbit: glide after release, plus a slow idle sway
-      if (!orbit.down) {
-        orbit.yaw += orbit.vy * f60; orbit.vy *= Math.pow(.92, f60);
-        orbit.pitch = clamp(orbit.pitch + orbit.vp * f60, -1.2, 1.2); orbit.vp *= Math.pow(.92, f60);
+      if (mouseMode) updateFly(now, dt, f60);
+      else {
+        // orbit: glide after release, plus a slow idle sway
+        if (!orbit.down) {
+          orbit.yaw += orbit.vy * f60; orbit.vy *= Math.pow(.92, f60);
+          orbit.pitch = clamp(orbit.pitch + orbit.vp * f60, -1.2, 1.2); orbit.vp *= Math.pow(.92, f60);
+        }
+        S.world.rotation.set(orbit.pitch + Math.sin(now * .00023) * .03, orbit.yaw + Math.sin(now * .0003) * .05, 0);
       }
-      S.world.rotation.set(orbit.pitch + Math.sin(now * .00023) * .03, orbit.yaw + Math.sin(now * .0003) * .05, 0);
       S.world.updateMatrixWorld();
       pointerOnName();
       drawComet(t);
@@ -283,6 +367,8 @@ const Intro = (() => {
     nameGroup = new T.Group();
     textMat = new T.PointsMaterial({ size: 1, map: S.glowTex, vertexColors: true, transparent: true, depthWrite: false, blending: T.AdditiveBlending });
     ray = new T.Raycaster(); plane = new T.Plane(); hit = new T.Vector3(); ndc = new T.Vector2();
+    fly.pos = new T.Vector3(); fly.vel = new T.Vector3();
+    fwd = new T.Vector3(); side = new T.Vector3(); tmp = new T.Vector3(); dn = new T.Vector3();
     S.onFrame(frame);
   }
 
@@ -290,6 +376,20 @@ const Intro = (() => {
     if (state !== 'form' && state !== 'static') return;
     root.classList.add('is-ready');
     startBtn.focus({ preventScroll: true });
+    if (state === 'form' && mouseMode) {
+      fly.on = true;
+      S.showBorder(true);
+      root.classList.add('is-exploring');
+    }
+  }
+
+  function resetFly() {
+    fly.on = false;
+    fly.touched = false;
+    fly.sway = 1;
+    fly.keys.clear();
+    if (fly.pos) { fly.pos.set(0, 0, S.CAM_Z); fly.vel.set(0, 0, 0); }
+    root.classList.remove('is-exploring');
   }
 
   async function begin() {
@@ -309,6 +409,9 @@ const Intro = (() => {
     setup();
     S.setMode('intro');
     S.world.add(nameGroup);
+    mouseMode = matchMedia('(hover: hover) and (pointer: fine)').matches;
+    S.camera.rotation.order = 'YXZ';
+    resetFly();
     Object.assign(orbit, { yaw: 0, pitch: 0, vy: 0, vp: 0, down: false, moved: false });
     O && O.fill(0);
     buildText();
@@ -350,6 +453,7 @@ const Intro = (() => {
     clearTimeout(readyTimer);
     if (comet) { comet.dispose(); comet = null; }
     if (nameGroup && nameGroup.parent) nameGroup.parent.remove(nameGroup);
+    resetFly();
     S.setMode('site');
     lockSite(false);
     remember();
