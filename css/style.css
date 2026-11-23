@@ -235,7 +235,9 @@ html.intro-on .intro.intro--static { background: var(--night); cursor: auto; }
   color: var(--night-muted);
   transition: opacity .35s;
 }
-.intro__skip {
+.intro__actions { display: flex; align-items: center; gap: .6rem; }
+.intro__skip,
+.intro__home {
   flex: none;
   white-space: nowrap;
   padding: .55rem .9rem;
@@ -249,7 +251,31 @@ html.intro-on .intro.intro--static { background: var(--night); cursor: auto; }
   color: var(--night-muted);
   transition: color .3s, border-color .3s;
 }
-.intro__skip:hover { color: var(--night-text); border-color: #D4A97A; }
+.intro__skip:hover,
+.intro__home:hover { color: var(--night-text); border-color: #D4A97A; }
+/* "Back to my name" shows once you've flown away (computers only) */
+.intro__home { opacity: 0; visibility: hidden; transition: color .3s, border-color .3s, opacity .4s, visibility .4s; }
+.intro.has-moved .intro__home { opacity: 1; visibility: visible; }
+@media (hover: none) { .intro__home { display: none; } }
+.intro.is-over-target { cursor: pointer; }
+/* planet names, placed over the 3D scene by js/intro.js */
+.intro__labels { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+.intro__labels span {
+  position: absolute;
+  left: 0; top: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1rem, 1.6vw, 1.3rem);
+  line-height: 1;
+  white-space: nowrap;
+  color: #D4A97A;
+  text-shadow: 0 0 12px rgba(14, 12, 10, .9), 0 0 3px rgba(14, 12, 10, .9);
+  opacity: 0;
+  transition: opacity .35s;
+  will-change: transform;
+}
+.intro__labels span.is-on { opacity: 1; }
+.intro.is-warping .intro__labels { opacity: 0; transition: opacity .3s; }
 /* shown instead of the 3D name when WebGL isn't available */
 .intro__name {
   display: none;

@@ -115,6 +115,12 @@ const Intro = (() => {
       K.set(pal[(Math.random() * pal.length) | 0], k);
       pos[k] = J[k]; pos[k + 1] = J[k + 1]; pos[k + 2] = J[k + 2];
     }
+    nameBox = [Infinity, -Infinity, Infinity, -Infinity];
+    for (let i = 0; i < N; i++) {
+      const x = B[i * 3], y = B[i * 3 + 1];
+      if (x < nameBox[0]) nameBox[0] = x; if (x > nameBox[1]) nameBox[1] = x;
+      if (y < nameBox[2]) nameBox[2] = y; if (y > nameBox[3]) nameBox[3] = y;
+    }
     if (textPts) { nameGroup.remove(textPts); textGeo.dispose(); }
     textGeo = new T.BufferGeometry();
     textGeo.setAttribute('position', new T.BufferAttribute(pos, 3).setUsage(T.DynamicDrawUsage));
@@ -150,7 +156,7 @@ const Intro = (() => {
   const fly = { on: false, touched: false, sway: 1, pos: null, vel: null, keys: new Set() };
   let fwd, side, tmp, dn;
   const pitchMax = () => (mouseMode ? 1.45 : 1.2);
-  const interact = () => { fly.touched = true; };
+  const interact = () => { fly.touched = true; glide = follow = null; }; // any input takes the controls back
 
   const onUi = (e) => e.target.closest('button, a');
   root.addEventListener('pointerdown', (e) => {
@@ -222,7 +228,9 @@ const Intro = (() => {
     if (fly.touched) fly.sway = Math.max(0, fly.sway - dt * 1.2);
     const sw = fly.sway;
     cam.rotation.set(orbit.pitch + Math.sin(now * .00023) * .012 * sw, orbit.yaw + Math.sin(now * .0003) * .02 * sw, 0);
-    if (fly.on) {
+    if (fly.on && (glide || follow)) {
+      steer(now);
+    } else if (fly.on) {
       if (fly.keys.size) {
         cam.getWorldDirection(fwd);
         side.crossVectors(fwd, cam.up).normalize();
@@ -235,18 +243,131 @@ const Intro = (() => {
       if (fly.vel.length() > 260) fly.vel.setLength(260);
       fly.pos.addScaledVector(fly.vel, dt);
       fly.vel.multiplyScalar(Math.pow(.93, f60));
+    }
+    if (fly.on) {
       keepIn(S.BORDER_C, S.BORDER_R - 8);
-      keepOut(S.sunWorld(tmp), S.R_SUN * 1.8);
-      S.planets.forEach((p) => keepOut(p.mesh.getWorldPosition(tmp), p.r * 1.6));
+      bodies.forEach((b) => keepOut(b.mesh.getWorldPosition(tmp), b.r * (b.id === 'sun' ? 1.8 : 1.6)));
     }
     cam.position.copy(fly.pos);
     cam.updateMatrixWorld();
+    if (fly.on) {
+      overTarget = hover.on && !orbit.down ? pick(hover.sx, hover.sy) : null;
+      root.classList.toggle('is-over-target', !!overTarget);
+      root.classList.toggle('has-moved', fly.pos.distanceTo(home) > 40 || Math.abs(wrap(orbit.yaw)) > .5 || Math.abs(orbit.pitch) > .5);
+      updateLabels();
+    }
   }
+
+  /* ---------- click to fly: a planet, the sun, or my name ---------- */
+  const homeBtn = root.querySelector('.intro__home');
+  const labelEls = {};
+  root.querySelectorAll('.intro__labels span').forEach((el) => { labelEls[el.dataset.body] = el; });
+  let bodies = [], glide = null, follow = null, overTarget = null, home, bp, lp, nameBox;
+  const wrap = (a) => a - Math.PI * 2 * Math.round(a / (Math.PI * 2));
+
+  // what's under the pointer: the nearest planet or the sun, else the name
+  function pick(sx, sy) {
+    ndc.set(sx / innerWidth * 2 - 1, -(sy / innerHeight * 2 - 1));
+    ray.setFromCamera(ndc, S.camera);
+    const o = ray.ray.origin, dir = ray.ray.direction;
+    let best = null, bestD = Infinity;
+    for (const b of bodies) {
+      b.mesh.getWorldPosition(bp);
+      lp.subVectors(bp, o);
+      const along = lp.dot(dir);
+      if (along <= 0) continue;
+      const rr = Math.max(b.r * 1.3, along * .018); // small or far planets stay easy to hit
+      if (lp.lengthSq() - along * along < rr * rr && along < bestD) { bestD = along; best = b; }
+    }
+    if (best) return best;
+    plane.set(new T.Vector3(0, 0, 1), 0).applyMatrix4(nameGroup.matrixWorld);
+    if (nameBox && ray.ray.intersectPlane(plane, hit)) {
+      nameGroup.worldToLocal(hit);
+      if (hit.x > nameBox[0] && hit.x < nameBox[1] && hit.y > nameBox[2] && hit.y < nameBox[3]) return 'name';
+    }
+    return null;
+  }
+
+  // the yaw / pitch that look from `from` at `at`
+  const aim = (from, at) => {
+    lp.subVectors(at, from);
+    const l = lp.length() || 1;
+    return [Math.atan2(-lp.x, -lp.z), Math.asin(clamp(lp.y / l, -1, 1))];
+  };
+
+  function flyTo(target) {
+    if (!fly.on) return;
+    follow = null;
+    fly.vel.set(0, 0, 0);
+    orbit.vy = orbit.vp = 0;
+    fly.touched = true;
+    let offset = null;
+    if (target !== 'name') {
+      // stop on my side of it, a little above, far enough to see all of it
+      target.mesh.getWorldPosition(bp);
+      offset = new T.Vector3().subVectors(fly.pos, bp);
+      offset.y += offset.length() * .25;
+      offset.setLength(target.r * (target.id === 'sun' ? 4 : 5));
+    }
+    const to = offset ? bp.clone().add(offset) : home;
+    glide = { t0: performance.now(), dur: clamp(1.2 + fly.pos.distanceTo(to) / 400, 1.2, 2.2) * 1000, from: fly.pos.clone(), y0: orbit.yaw, p0: orbit.pitch, target, offset };
+  }
+
+  // glide towards the target, then keep following it as it orbits
+  const goal = new Float32Array(2);
+  function steer(now) {
+    const g = glide || follow;
+    let at, to;
+    if (g.target === 'name') { to = home; at = lp.set(0, 0, 0).clone(); }
+    else { g.target.mesh.getWorldPosition(bp); at = bp.clone(); to = bp.clone().add(g.offset); }
+    if (glide) {
+      const p = clamp((now - glide.t0) / glide.dur, 0, 1), e = easeInOut(p);
+      fly.pos.lerpVectors(glide.from, to, e);
+      goal.set(aim(to, at));
+      orbit.yaw = glide.y0 + wrap(goal[0] - glide.y0) * e;
+      orbit.pitch = glide.p0 + (goal[1] - glide.p0) * e;
+      if (p >= 1) { follow = glide.target === 'name' ? null : glide; glide = null; }
+    } else {
+      fly.pos.copy(to);
+      goal.set(aim(to, at));
+      orbit.yaw = goal[0]; orbit.pitch = goal[1];
+    }
+    S.camera.rotation.set(orbit.pitch, orbit.yaw, 0);
+  }
+
+  // a planet's name shows when you hover it or fly close to it
+  function updateLabels() {
+    const cam = S.camera, half = Math.tan(cam.fov * Math.PI / 360);
+    cam.getWorldDirection(fwd);
+    for (const b of bodies) {
+      const el = labelEls[b.id];
+      if (!el) continue;
+      b.mesh.getWorldPosition(bp);
+      lp.subVectors(bp, cam.position);
+      const dist = lp.length(), ahead = lp.dot(fwd) > 0;
+      const on = ahead && (overTarget === b || dist < b.r * 8);
+      el.classList.toggle('is-on', on);
+      if (!on) continue;
+      bp.project(cam);
+      const x = (bp.x + 1) / 2 * innerWidth, y = (1 - bp.y) / 2 * innerHeight;
+      const pr = b.r / (dist * half) * innerHeight / 2; // the planet's radius on screen
+      el.style.transform = `translate(${x.toFixed(1)}px, ${(y - pr - 10).toFixed(1)}px) translate(-50%, -100%)`;
+    }
+  }
+  const hideLabels = () => Object.values(labelEls).forEach((el) => el.classList.remove('is-on'));
+  homeBtn?.addEventListener('click', () => flyTo('name'));
   const release = () => {
     orbit.down = false;
     root.classList.remove('is-dragging');
   };
-  root.addEventListener('pointerup', release);
+  root.addEventListener('pointerup', (e) => {
+    // a press that didn't drag is a click: fly to whatever is under it
+    if (mouseMode && fly.on && orbit.down && !orbit.moved && state === 'form') {
+      const t = pick(e.clientX, e.clientY);
+      if (t) flyTo(t);
+    }
+    release();
+  });
   root.addEventListener('pointercancel', release);
   root.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') hover.on = false; });
 
@@ -369,6 +490,8 @@ const Intro = (() => {
     ray = new T.Raycaster(); plane = new T.Plane(); hit = new T.Vector3(); ndc = new T.Vector2();
     fly.pos = new T.Vector3(); fly.vel = new T.Vector3();
     fwd = new T.Vector3(); side = new T.Vector3(); tmp = new T.Vector3(); dn = new T.Vector3();
+    bp = new T.Vector3(); lp = new T.Vector3(); home = new T.Vector3(0, 0, S.CAM_Z);
+    bodies = [{ id: 'sun', r: S.R_SUN, mesh: S.sun }, ...S.planets.map((p) => ({ id: p.id, r: p.r, mesh: p.mesh }))];
     S.onFrame(frame);
   }
 
@@ -389,7 +512,9 @@ const Intro = (() => {
     fly.sway = 1;
     fly.keys.clear();
     if (fly.pos) { fly.pos.set(0, 0, S.CAM_Z); fly.vel.set(0, 0, 0); }
-    root.classList.remove('is-exploring');
+    glide = follow = overTarget = null;
+    hideLabels();
+    root.classList.remove('is-exploring', 'has-moved', 'is-over-target');
   }
 
   async function begin() {
