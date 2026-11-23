@@ -307,7 +307,7 @@ const Intro = (() => {
       target.mesh.getWorldPosition(bp);
       offset = new T.Vector3().subVectors(fly.pos, bp);
       offset.y += offset.length() * .25;
-      offset.setLength(target.r * (target.id === 'sun' ? 4 : 5));
+      offset.setLength(target.id === 'sun' ? target.r * 4 : Math.max(target.r * 5, target.ext * 2.9)); // Saturn: fit its rings
     }
     const to = offset ? bp.clone().add(offset) : home;
     glide = { t0: performance.now(), dur: clamp(1.2 + fly.pos.distanceTo(to) / 400, 1.2, 2.2) * 1000, from: fly.pos.clone(), y0: orbit.yaw, p0: orbit.pitch, target, offset };
@@ -319,7 +319,12 @@ const Intro = (() => {
     const g = glide || follow;
     let at, to;
     if (g.target === 'name') { to = home; at = lp.set(0, 0, 0).clone(); }
-    else { g.target.mesh.getWorldPosition(bp); at = bp.clone(); to = bp.clone().add(g.offset); }
+    else {
+      g.target.mesh.getWorldPosition(bp);
+      to = bp.clone().add(g.offset);
+      at = bp.clone();
+      at.y -= g.offset.length() * .17; // aim a little below it, so it sits above the tagline and button
+    }
     if (glide) {
       const p = clamp((now - glide.t0) / glide.dur, 0, 1), e = easeInOut(p);
       fly.pos.lerpVectors(glide.from, to, e);
@@ -350,7 +355,7 @@ const Intro = (() => {
       if (!on) continue;
       bp.project(cam);
       const x = (bp.x + 1) / 2 * innerWidth, y = (1 - bp.y) / 2 * innerHeight;
-      const pr = b.r / (dist * half) * innerHeight / 2; // the planet's radius on screen
+      const pr = b.ext / (dist * half) * innerHeight / 2; // the planet's (or its rings') radius on screen
       el.style.transform = `translate(${x.toFixed(1)}px, ${(y - pr - 10).toFixed(1)}px) translate(-50%, -100%)`;
     }
   }
@@ -491,7 +496,7 @@ const Intro = (() => {
     fly.pos = new T.Vector3(); fly.vel = new T.Vector3();
     fwd = new T.Vector3(); side = new T.Vector3(); tmp = new T.Vector3(); dn = new T.Vector3();
     bp = new T.Vector3(); lp = new T.Vector3(); home = new T.Vector3(0, 0, S.CAM_Z);
-    bodies = [{ id: 'sun', r: S.R_SUN, mesh: S.sun }, ...S.planets.map((p) => ({ id: p.id, r: p.r, mesh: p.mesh }))];
+    bodies = [{ id: 'sun', r: S.R_SUN, ext: S.R_SUN, mesh: S.sun }, ...S.planets.map((p) => ({ id: p.id, r: p.r, ext: p.ext, mesh: p.mesh }))];
     S.onFrame(frame);
   }
 

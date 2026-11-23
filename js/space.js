@@ -211,7 +211,7 @@ const Space = (() => {
       ring.rotation.x = -Math.PI / 2 + .45;
       mesh.add(ring);
     }
-    return { id: p.id, r: p.r, mesh, pivot, speed: .5 * Math.pow(36 / p.orbit, 1.5), spin: .3 + Math.random() * .4 };
+    return { id: p.id, r: p.r, ext: p.ring ? p.ring[1] : p.r, mesh, pivot, speed: .5 * Math.pow(36 / p.orbit, 1.5), spin: .3 + Math.random() * .4 };
   });
 
   /* ---------- deep starfield, all around ---------- */
