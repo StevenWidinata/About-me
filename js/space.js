@@ -23,7 +23,7 @@ const Space = (() => {
 
   const T = THREE;
   const CAM_Z = 100, FOV = 60;
-  const SYS = new T.Vector3(0, 4, -120); // where the sun sits, behind the name
+  const SYS = new T.Vector3(0, 8, -260); // where the sun sits, behind the name
   const TILT = .42;                       // the orbit plane leans towards us so orbits read as ellipses
 
   let renderer;
@@ -141,16 +141,18 @@ const Space = (() => {
 
   // sizes and orbits are artistic (the real ones would put Neptune off the screen)
   const PLANETS = [
-    { id: 'mercury', r: 1.2, orbit: 18 },
-    { id: 'venus', r: 2.0, orbit: 25 },
-    { id: 'earth', r: 2.1, orbit: 33 },
-    { id: 'mars', r: 1.6, orbit: 41 },
-    { id: 'jupiter', r: 5.6, orbit: 57 },
-    { id: 'saturn', r: 4.6, orbit: 76, ring: [6.2, 10.8] },
-    { id: 'uranus', r: 3.1, orbit: 94 },
-    { id: 'neptune', r: 3.0, orbit: 110 },
+    { id: 'mercury', r: 2.4, orbit: 36 },
+    { id: 'venus', r: 4.0, orbit: 50 },
+    { id: 'earth', r: 4.2, orbit: 66 },
+    { id: 'mars', r: 3.2, orbit: 82 },
+    { id: 'jupiter', r: 11.2, orbit: 114 },
+    { id: 'saturn', r: 9.2, orbit: 152, ring: [12.4, 21.6] },
+    { id: 'uranus', r: 6.2, orbit: 188 },
+    { id: 'neptune', r: 6.0, orbit: 220 },
   ];
-  const R_SUN = 8;
+  const R_SUN = 16;
+  // the explorable space on the intro: a sphere around the whole system and the starting view
+  const BORDER_C = new T.Vector3(0, 4, -170), BORDER_R = 390;
 
   /* ---------- the solar system ---------- */
   const system = new T.Group();   // positioned + tilted
@@ -209,7 +211,7 @@ const Space = (() => {
       ring.rotation.x = -Math.PI / 2 + .45;
       mesh.add(ring);
     }
-    return { mesh, pivot, speed: .5 * Math.pow(18 / p.orbit, 1.5), spin: .3 + Math.random() * .4 };
+    return { id: p.id, r: p.r, mesh, pivot, speed: .5 * Math.pow(36 / p.orbit, 1.5), spin: .3 + Math.random() * .4 };
   });
 
   /* ---------- deep starfield, all around ---------- */
@@ -217,7 +219,7 @@ const Space = (() => {
   {
     const pos = new Float32Array(STARS * 3), col = new Float32Array(STARS * 3);
     for (let i = 0; i < STARS; i++) {
-      const r = rand(500, 1100), a = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1);
+      const r = rand(900, 1600), a = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1);
       pos.set([r * Math.sin(ph) * Math.cos(a), r * Math.cos(ph) * .8, r * Math.sin(ph) * Math.sin(a)], i * 3);
       const k = rand(.45, 1);
       col.set(Math.random() < .78 ? [.95 * k, .93 * k, .9 * k] : [.83 * k, .66 * k, .48 * k], i * 3);
@@ -226,8 +228,43 @@ const Space = (() => {
     geo.setAttribute('position', new T.BufferAttribute(pos, 3));
     geo.setAttribute('color', new T.BufferAttribute(col, 3));
     world.add(new T.Points(geo, new T.PointsMaterial({
-      size: 4.2, map: glowTex, vertexColors: true, transparent: true, depthWrite: false, blending: T.AdditiveBlending,
+      size: 6.6, map: glowTex, vertexColors: true, transparent: true, depthWrite: false, blending: T.AdditiveBlending,
     })));
+  }
+
+  /* ---------- the border of the explorable space: dots that glow only near the camera ---------- */
+  const borderMat = new T.ShaderMaterial({
+    uniforms: { uScale: { value: 1 }, uOn: { value: 0 }, map: { value: glowTex } },
+    vertexShader: `
+      attribute vec3 tint; varying float vA; varying vec3 vC; uniform float uScale; uniform float uOn;
+      void main() {
+        vec4 wp = modelMatrix * vec4(position, 1.0);
+        float d = distance(wp.xyz, cameraPosition);
+        vA = uOn * smoothstep(170.0, 40.0, d) * .75;
+        vC = tint;
+        vec4 mv = viewMatrix * wp;
+        gl_PointSize = 3.2 * uScale / -mv.z;
+        gl_Position = projectionMatrix * mv;
+      }`,
+    fragmentShader: `
+      uniform sampler2D map; varying float vA; varying vec3 vC;
+      void main() { gl_FragColor = vec4(vC, vA) * texture2D(map, gl_PointCoord); }`,
+    transparent: true, depthWrite: false, blending: T.AdditiveBlending,
+  });
+  {
+    const n = phone ? 1400 : 2600, pos = new Float32Array(n * 3), col = new Float32Array(n * 3);
+    const gold = Math.PI * (3 - Math.sqrt(5));
+    for (let i = 0; i < n; i++) {           // evenly spread over the sphere (Fibonacci)
+      const y = 1 - (i + .5) / n * 2, rr = Math.sqrt(1 - y * y), a = i * gold;
+      pos.set([BORDER_C.x + Math.cos(a) * rr * BORDER_R, BORDER_C.y + y * BORDER_R, BORDER_C.z + Math.sin(a) * rr * BORDER_R], i * 3);
+      col.set(Math.random() < .6 ? [.95, .9, .82] : [.83, .66, .48], i * 3);
+    }
+    const geo = new T.BufferGeometry();
+    geo.setAttribute('position', new T.BufferAttribute(pos, 3));
+    geo.setAttribute('tint', new T.BufferAttribute(col, 3));
+    const border = new T.Points(geo, borderMat);
+    border.frustumCulled = false;
+    world.add(border);
   }
 
   /* ---------- glowing trails (comets and the intro's comet) ---------- */
@@ -248,7 +285,11 @@ const Space = (() => {
       void main() { gl_FragColor = vec4(vC, vA) * texture2D(map, gl_PointCoord); }`,
     transparent: true, depthWrite: false, blending: T.AdditiveBlending,
   });
-  const updateScale = () => { trailMat.uniforms.uScale.value = renderer.getPixelRatio() * innerHeight / (2 * Math.tan(camera.fov * Math.PI / 360)); };
+  const updateScale = () => {
+    const s = renderer.getPixelRatio() * innerHeight / (2 * Math.tan(camera.fov * Math.PI / 360));
+    trailMat.uniforms.uScale.value = s;
+    borderMat.uniforms.uScale.value = s;
+  };
 
   // a trail of n points; draw(fn) places point k (0 = head) and gives its size, alpha and colour
   function makeTrail(n) {
@@ -321,7 +362,7 @@ const Space = (() => {
   // the whole system from far away, at a slight angle
   function placeSiteCamera() {
     const half = Math.tan(FOV * Math.PI / 360);
-    const d = Math.max(230, 135 / (half * Math.min(camera.aspect, 1.6)));
+    const d = Math.max(460, 270 / (half * Math.min(camera.aspect, 1.6)));
     camera.position.set(SYS.x, SYS.y + Math.sin(.3) * d, SYS.z + Math.cos(.3) * d);
     camera.lookAt(SYS);
   }
@@ -332,6 +373,7 @@ const Space = (() => {
     camera.fov = FOV;
     world.rotation.set(0, 0, 0);
     world.position.set(0, 0, 0);
+    borderMat.uniforms.uOn.value = 0;
     if (mode === 'intro') {
       plane.rotation.y = 0;
       camera.position.set(0, 0, CAM_Z);
@@ -390,5 +432,7 @@ const Space = (() => {
     onFrame: (fn) => hooks.add(fn),
     offFrame: (fn) => hooks.delete(fn),
     sunWorld: (out = new T.Vector3()) => sun.getWorldPosition(out),
+    sun, R_SUN, planets, BORDER_C, BORDER_R,
+    showBorder: (on) => { borderMat.uniforms.uOn.value = on ? 1 : 0; },
   };
 })();
