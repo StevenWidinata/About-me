@@ -18,10 +18,10 @@ const Intro = (() => {
   const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
   const easeInOut = (p) => (p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
 
-  // timeline, in seconds from the start (about 7 s until the button shows)
-  const T_SWEEP = .8, SWEEP = 2.0;   // the comet crosses the screen
-  const T_GATHER = 2.8, GATHER = 2.2; // the trail flies into the letters, left to right
-  const T_READY = 6.2;                // tagline + button fade in
+  // timeline, in seconds from the start (about 4.5 s until the button shows)
+  const T_SWEEP = .4, SWEEP = 1.5;   // the comet crosses the screen
+  const T_GATHER = 1.7, GATHER = 1.8; // the trail flies into the letters, left to right
+  const T_READY = 4.5;                // tagline + button fade in
   const WARP = 2.35;                  // flight into the sun
 
   let T, nameGroup, textGeo, textMat, textPts, comet;
@@ -107,7 +107,7 @@ const Intro = (() => {
       W[k] = (Math.random() - .6) * vw * .03;
       W[k + 1] = (Math.random() - .65) * vh * .05;
       W[k + 2] = (Math.random() - .5) * 8;
-      G[i] = T_GATHER + U[i] * .9 + Math.random() * .25;
+      G[i] = T_GATHER + U[i] * .7 + Math.random() * .2;
       // each star curves in on its own path
       const ca = Math.random() * Math.PI * 2, cr = vh * (.04 + Math.random() * .1);
       C[k] = Math.cos(ca) * cr; C[k + 1] = Math.sin(ca) * cr; C[k + 2] = (Math.random() - .5) * 20;
