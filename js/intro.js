@@ -245,7 +245,7 @@ const Intro = (() => {
       fly.vel.multiplyScalar(Math.pow(.93, f60));
     }
     if (fly.on) {
-      keepIn(S.BORDER_C, S.BORDER_R - 8);
+      keepIn(S.BORDER_C, S.BORDER_R - 50); // stop short of the shell so it's in view
       bodies.forEach((b) => keepOut(b.mesh.getWorldPosition(tmp), b.r * (b.id === 'sun' ? 1.8 : 1.6)));
     }
     cam.position.copy(fly.pos);

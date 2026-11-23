@@ -240,10 +240,10 @@ const Space = (() => {
       void main() {
         vec4 wp = modelMatrix * vec4(position, 1.0);
         float d = distance(wp.xyz, cameraPosition);
-        vA = uOn * smoothstep(170.0, 40.0, d) * .75;
+        vA = uOn * (1.0 - smoothstep(70.0, 210.0, d)) * smoothstep(12.0, 30.0, d) * .85; // nearest dots fade so they never blur
         vC = tint;
         vec4 mv = viewMatrix * wp;
-        gl_PointSize = 3.2 * uScale / -mv.z;
+        gl_PointSize = clamp(1.1 * uScale / -mv.z, 1.0, 4.5);
         gl_Position = projectionMatrix * mv;
       }`,
     fragmentShader: `
@@ -252,13 +252,20 @@ const Space = (() => {
     transparent: true, depthWrite: false, blending: T.AdditiveBlending,
   });
   {
-    const n = phone ? 1400 : 2600, pos = new Float32Array(n * 3), col = new Float32Array(n * 3);
-    const gold = Math.PI * (3 - Math.sqrt(5));
-    for (let i = 0; i < n; i++) {           // evenly spread over the sphere (Fibonacci)
-      const y = 1 - (i + .5) / n * 2, rr = Math.sqrt(1 - y * y), a = i * gold;
-      pos.set([BORDER_C.x + Math.cos(a) * rr * BORDER_R, BORDER_C.y + y * BORDER_R, BORDER_C.z + Math.sin(a) * rr * BORDER_R], i * 3);
-      col.set(Math.random() < .6 ? [.95, .9, .82] : [.83, .66, .48], i * 3);
+    // tiny warm dots along a globe's lines (meridians + parallels), so the curve reads as an edge
+    const pts = [], STEP = phone ? 4.5 : 1.5, LINES = 30; // phones never fly, so they get a light version
+    const put = (lat, lon) => pts.push(
+      BORDER_C.x + Math.cos(lat) * Math.cos(lon) * BORDER_R, BORDER_C.y + Math.sin(lat) * BORDER_R, BORDER_C.z + Math.cos(lat) * Math.sin(lon) * BORDER_R);
+    for (let m = 0; m < LINES; m++) {                       // meridians, pole to pole
+      const lon = m / LINES * Math.PI * 2, n = Math.round(Math.PI * BORDER_R / STEP);
+      for (let k = 1; k < n; k++) put(-Math.PI / 2 + k / n * Math.PI, lon);
     }
+    for (let p = 1; p < LINES / 2; p++) {                   // parallels
+      const lat = -Math.PI / 2 + p / (LINES / 2) * Math.PI, n = Math.round(Math.PI * 2 * Math.cos(lat) * BORDER_R / STEP);
+      for (let k = 0; k < n; k++) put(lat, k / n * Math.PI * 2);
+    }
+    const pos = new Float32Array(pts), count = pos.length / 3, col = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) col.set(Math.random() < .55 ? [.95, .9, .82] : [.83, .66, .48], i * 3);
     const geo = new T.BufferGeometry();
     geo.setAttribute('position', new T.BufferAttribute(pos, 3));
     geo.setAttribute('tint', new T.BufferAttribute(col, 3));
