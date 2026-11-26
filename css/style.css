@@ -816,30 +816,91 @@ html.intro-on .reveal-in { animation: none; opacity: 0; }
   opacity: 0;
   transition: opacity .7s var(--ease);
 }
-.door--walnut   { --wood: repeating-linear-gradient(90deg, rgba(0,0,0,.11) 0 1px, transparent 1px 6px, rgba(255,235,210,.035) 6px 8px, transparent 8px 13px), linear-gradient(180deg, #5E3D27, #3C2616); }
-.door--oak      { --wood: repeating-linear-gradient(90deg, rgba(0,0,0,.09) 0 1px, transparent 1px 5px, rgba(255,240,215,.05) 5px 7px, transparent 7px 12px), linear-gradient(180deg, #91694A, #654630); }
-.door--espresso { --wood: repeating-linear-gradient(90deg, rgba(0,0,0,.14) 0 1px, transparent 1px 7px, rgba(255,235,210,.025) 7px 9px, transparent 9px 14px), linear-gradient(180deg, #2E231C, #1B1410); }
 .door--slate    { --wood: linear-gradient(180deg, #2B2826, #1C1A18); }
 
-/* Sketchy: a door drawn in pen on dotted sketchbook paper, lit by the same lamp */
+/* Every door is dressed as the project behind it: same arch, its own colours,
+   artwork and nameplate font. The artwork is an SVG drawn on a 100 x 180 leaf. */
+.door__art { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.door--mewing .door__plate,
+.door--zero .door__plate,
+.door--glitch .door__plate,
+.door--sketch .door__plate { letter-spacing: 0; line-height: 1.2; }
+
+/* Mewing Academy: synthwave night, pixel cat, a yellow PRESS START button */
+.door--mewing { --wood: #0D0730; }
+.door--mewing .door__plate {
+  padding: 6px 7px 5px;
+  border-radius: 3px;
+  background: #FFC93C;
+  box-shadow: 0 0 0 1.5px #1A1240, 0 0 0 3px #3EF0E8, 0 4px 0 1.5px #1A1240;
+  font-family: "Press Start 2P", var(--font-mono);
+  font-size: 6.5px;
+  font-weight: 400;
+  color: #1A1240;
+}
+.door--mewing .door__knob { width: 8px; height: 8px; border-radius: 0; background: #3EF0E8; box-shadow: 0 0 0 1.5px #1A1240; }
+
+/* ZeroSignal: cream graph paper, navy outlines with hard offset shadows */
+.door--zero {
+  --wood:
+    repeating-linear-gradient(0deg, rgba(29, 35, 64, .08) 0 1px, transparent 1px 10px),
+    repeating-linear-gradient(90deg, rgba(29, 35, 64, .08) 0 1px, transparent 1px 10px),
+    #FFF4DA;
+}
+.door--zero .door__leaf,
+.door--sketch .door__leaf { box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .2), inset -8px 0 14px rgba(0, 0, 0, .16); }
+.door--zero .door__plate {
+  padding: 6px 7px 5px;
+  border: 2px solid #1D2340;
+  border-radius: 3px;
+  background: #fff;
+  box-shadow: 2px 2px 0 #1D2340;
+  font-family: "Press Start 2P", var(--font-mono);
+  font-size: 7px;
+  font-weight: 400;
+}
+.zs-zero { color: #2F6FF0; }
+.zs-signal { color: #1E9E56; }
+.door--zero .door__knob { width: 9px; height: 9px; border-radius: 2px; background: #FFD23F; border: 2px solid #1D2340; box-shadow: 1.5px 1.5px 0 #1D2340; }
+
+/* Glitch Type: an arcade cabinet with neon trim and a marquee of bulbs */
+.door--glitch { --wood: linear-gradient(180deg, #170C30, #0B0619); }
+.door--glitch .gt-neon { filter: drop-shadow(0 0 1.5px #FF3FD2); }
+.door--glitch .door__plate {
+  padding: 8px 9px;
+  border: 1px solid #FF3FD2;
+  border-radius: 3px;
+  background:
+    radial-gradient(circle, #F2C230 .8px, transparent 1.2px) 0 0 / 5px 3px repeat-x,
+    radial-gradient(circle, #F2C230 .8px, transparent 1.2px) 0 100% / 5px 3px repeat-x,
+    #0E0620;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .6);
+  font-family: "Orbitron", var(--font-mono);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  color: #fff;
+  text-shadow: -.6px 0 rgba(255, 63, 210, .9), .6px 0 rgba(46, 230, 245, .9);
+}
+.door--glitch .door__knob { width: 9px; height: 9px; background: #FF3FD2; box-shadow: 0 0 0 1.5px #0B0619, 0 0 6px rgba(255, 63, 210, .6); }
+
+/* Sketchy: white dotted paper, a door drawn in pen, coloured doodles and the raccoon */
 .door--sketch {
   --ink: #1D2340;
-  --wood: radial-gradient(circle, rgba(29, 35, 64, .2) .9px, transparent 1.3px) 0 0 / 9px 9px, linear-gradient(180deg, #E3DBCA, #B9AE98);
+  --wood: radial-gradient(circle, #C5CDE0 .9px, transparent 1.3px) 0 0 / 9px 9px, #FEFDFB;
 }
-.door--sketch .door__leaf { box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .25), inset -10px 0 18px rgba(60, 40, 20, .22); }
-.door__sketch { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.door__sketch path { vector-effect: non-scaling-stroke; }
-.door__sketch .door__sketch-pass { stroke-width: 1; opacity: .45; }
-.door__sketch .door__sketch-hatch { stroke-width: 1; opacity: .5; }
+.door__sketch { fill: none; stroke: var(--ink); stroke-width: .85; stroke-linecap: round; stroke-linejoin: round; }
+.door__sketch .door__sketch-pass { stroke-width: .55; opacity: .45; }
+.door__sketch .doodle { stroke-width: .85; }
+.door__sketch .raccoon { stroke-width: .6; }
 .door--sketch .door__plate {
   transform: translate(-50%, -50%) rotate(-4deg);
-  padding: 2px 12px 4px;
-  background: #FBF8F1;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, .3);
-  font-family: "Caveat", "Segoe Print", cursive;
-  font-size: 19px;
+  padding: 3px 11px 4px;
+  background: #fff;
+  box-shadow: 0 0 0 1.5px var(--ink), 2px 2px 0 1.5px rgba(29, 35, 64, .25);
+  font-family: "DynaPuff", var(--font-body);
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: 0;
   text-transform: none;
   color: var(--ink);
 }
@@ -847,13 +908,12 @@ html.intro-on .reveal-in { animation: none; opacity: 0; }
 .door--sketch .door__plate::before {
   content: "";
   position: absolute;
-  left: 50%; top: -6px;
+  left: 50%; top: -7px;
   width: 30px; height: 11px;
   transform: translateX(-50%) rotate(5deg);
-  background: rgba(222, 190, 128, .75);
-  box-shadow: 0 0 0 .5px rgba(150, 112, 62, .35);
+  background: rgba(255, 214, 102, .7);
 }
-.door--sketch .door__knob { width: 11px; height: 11px; background: #FBF8F1; border: 1.6px solid var(--ink); box-shadow: 1.5px 1.5px 0 rgba(29, 35, 64, .35); }
+.door--sketch .door__knob { width: 10px; height: 10px; background: #fff; border: 1.6px solid var(--ink); box-shadow: 1.5px 1.5px 0 rgba(29, 35, 64, .3); }
 
 .slot--live .door:hover .door__leaf,
 .slot--live .door:focus-visible .door__leaf { transform: rotateY(26deg); }
