@@ -15,7 +15,7 @@ Built from scratch with plain HTML, CSS and JavaScript. There is no build step. 
   - It plays once per browser session. Links to a section (like `/#projects`) skip it, and so does the reduced-motion setting. **Replay intro** is in the footer.
 - **Space background:** the same solar system stays behind the whole site, seen from far away, dimmed and slowly turning, with a comet every 4–8 seconds.
 - **Journey:** the timeline fills in and its stars light up as you scroll.
-- **Project doors:** each project sits behind a door. Hover to peek, click to walk through into the project room. Locked doors are projects that are still coming. Below the doors: a link to my [3D gallery of every project](https://sliding-url.vercel.app), and a "More work" list that includes team builds.
+- **Project doors:** each project sits behind a door. Hover to peek, click to walk through into the project room. Sketchy's door is drawn in pen on sketchbook paper, like the game. A door without `data-project` stays locked and rattles when clicked. Below the doors: a link to my [3D gallery of every project](https://sliding-url.vercel.app), and a "More work" list that includes team builds.
 - Dark design, in English / Bahasa Indonesia.
 
 ## Run locally
@@ -29,7 +29,7 @@ npx serve .
 ## Customising
 
 - **Projects:** door markup is in the `PROJECTS` section of `index.html`. The project room text and links live in the `PROJECTS` object in `js/main.js`. Screenshots are in `assets/covers/`.
-- **Add a project:** turn a "Coming soon" door into a live one: give it `data-project="<id>"`, a background image on `.door__inside`, the `slot--live` class, and add `<id>` to `PROJECTS`. Smaller projects go in the "More work" list; add `<small class="more__team">Team</small>` after the name for team builds. Keep the "Live projects online" number in the stats row up to date.
+- **Add a project:** copy a `slot--live` door and give it `data-project="<id>"`, a background image on `.door__inside`, and add `<id>` to `PROJECTS`. Smaller projects go in the "More work" list; add `<small class="more__team">Team</small>` after the name for team builds. Keep the "Live projects online" number in the stats row up to date.
 - **Solar system:** planet sizes, orbits and painted textures are `PLANETS` and `PAINT` in `js/space.js`, and the explorable space is `BORDER_C` / `BORDER_R`. Comet timing is in `updateComets`. The intro timeline (`T_SWEEP`, `T_GATHER`, `T_READY`) is at the top of `js/intro.js`, and flight speed and the click-to-fly distances are in `updateFly` and `flyTo`.
 - **Indonesian text:** all translations live in `js/i18n.js`. English is the key, Indonesian is the value.
 - **Photo:** `assets/portrait.jpg` (hero) and `assets/profile.jpg` (share preview).
