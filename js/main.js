@@ -210,6 +210,22 @@ const PROJECTS = {
     ],
     tech: ['TypeScript', 'Vite', 'Canvas 2D', 'Web Audio', 'matter-js'],
   },
+  sketchy: {
+    name: 'Sketchy',
+    kind: 'Games · Multiplayer',
+    img: 'assets/covers/sketchy.jpg',
+    host: 'sketchy-swart.vercel.app',
+    url: 'https://sketchy-swart.vercel.app',
+    code: 'https://github.com/StevenWidinata/sketchy',
+    desc: 'A realtime drawing and guessing game for 2 to 20 friends. One player draws a word, everyone else races to guess it in chat. Share a 5-letter code and play in any browser, no sign-up.',
+    points: [
+      '20 word categories, in English or Bahasa Indonesia',
+      'Pen, fill bucket and undo, with mouse, finger or stylus',
+      'Every drawing replays as a timelapse at the end',
+      'Guessers never receive the word, so nobody can peek',
+    ],
+    tech: ['React', 'TypeScript', 'Supabase Realtime', 'Vercel Functions', 'Canvas 2D'],
+  },
 };
 
 (() => {

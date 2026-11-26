@@ -111,8 +111,8 @@ const ID = {
   // projects
   "Things I've built": 'Yang sudah saya buat',
   'Pick a <em>door.</em>': 'Pilih sebuah <em>pintu.</em>',
-  'Each one opens onto something I built. Three are open now. The last one stays locked while my next project is being built.':
-    'Setiap pintu membuka sesuatu yang saya buat. Tiga sudah terbuka. Pintu terakhir masih terkunci karena proyek berikutnya sedang saya buat.',
+  'Each one opens onto something I built. Hover to peek inside, click to walk in.':
+    'Setiap pintu membuka sesuatu yang saya buat. Arahkan kursor untuk mengintip, klik untuk masuk.',
   'Open the door to Mewing Academy': 'Buka pintu ke Mewing Academy',
   'Open the door to ZeroSignal': 'Buka pintu ke ZeroSignal',
   'Coming soon. This door is locked.': 'Segera hadir. Pintu ini masih terkunci.',
@@ -123,6 +123,8 @@ const ID = {
   'Games · Full-stack': 'Game · Full-stack',
   'Open the door to Glitch Type': 'Buka pintu ke Glitch Type',
   'Games · Typing': 'Game · Mengetik',
+  'Open the door to Sketchy': 'Buka pintu ke Sketchy',
+  'Games · Multiplayer': 'Game · Multipemain',
 
   'Swipe': 'Geser',
   'More work': 'Karya lainnya',
@@ -161,6 +163,12 @@ const ID = {
   'Pick a mode by grabbing a crate with a claw machine': 'Pilih mode dengan mengambil peti memakai mesin capit',
   'A daily challenge, plus stats with a weak-key heatmap': 'Tantangan harian, plus statistik dengan peta tombol yang masih lemah',
   'Words in English and Bahasa Indonesia': 'Kata-kata dalam bahasa Inggris dan Bahasa Indonesia',
+  'A realtime drawing and guessing game for 2 to 20 friends. One player draws a word, everyone else races to guess it in chat. Share a 5-letter code and play in any browser, no sign-up.':
+    'Game menggambar dan menebak secara realtime untuk 2 sampai 20 teman. Satu pemain menggambar sebuah kata, yang lain berlomba menebaknya di chat. Bagikan kode 5 huruf dan main di browser mana pun, tanpa daftar.',
+  '20 word categories, in English or Bahasa Indonesia': '20 kategori kata, dalam bahasa Inggris atau Bahasa Indonesia',
+  'Pen, fill bucket and undo, with mouse, finger or stylus': 'Pena, ember cat, dan undo, pakai mouse, jari, atau stylus',
+  'Every drawing replays as a timelapse at the end': 'Setiap gambar diputar ulang sebagai timelapse di akhir',
+  'Guessers never receive the word, so nobody can peek': 'Penebak tidak pernah menerima katanya, jadi tidak ada yang bisa mengintip',
 
   // at a glance
   'At a glance': 'Sekilas',
