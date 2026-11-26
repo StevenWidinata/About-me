@@ -154,8 +154,8 @@ const ID = {
   'Built so kids of every ability can take part': 'Dibuat agar anak dengan kemampuan apa pun bisa ikut belajar',
   'A collection of quick arcade games for killing boredom, with real leaderboards. Every score is checked by the server, so nobody can cheat their way to the top.':
     'Kumpulan game arcade singkat untuk mengusir bosan, lengkap dengan papan peringkat sungguhan. Setiap skor diperiksa server, jadi tidak ada yang bisa curang untuk jadi nomor satu.',
-  'Nine games, from a full-physics slingshot game to Chess and Snake': 'Sembilan game, dari game ketapel dengan fisika penuh sampai Catur dan Ular',
-  'Play Chess and Sonar online against a friend': 'Main Catur dan Sonar online melawan teman',
+  'Thirteen games, from a full-physics slingshot game to Chess, Sudoku and Brick Breaker': 'Tiga belas game, dari game ketapel dengan fisika penuh sampai Catur, Sudoku, dan Brick Breaker',
+  'Play Chess, Checkers and Sonar online against a friend': 'Main Catur, Dam, dan Sonar online melawan teman',
   'The server replays every move, so the leaderboard stays fair': 'Server memutar ulang setiap langkah, jadi papan peringkat tetap adil',
   'Play straight away, and sign up only to save scores': 'Langsung main, dan daftar hanya jika ingin menyimpan skor',
   'A neon typing trainer that plays like an arcade. Shoot down word asteroids from a black hole or repair a corrupted transmission before it breaks. No login: everything runs in the browser.':
