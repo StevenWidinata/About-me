@@ -655,58 +655,154 @@ html.intro-on .reveal-in { animation: none; opacity: 0; }
   background: linear-gradient(180deg, #1D1713 0%, var(--night) 100%);
   border-top: 1px solid rgba(212, 169, 122, .22);
 }
+/* The hall is a round room: doors stand on a curved wall and the room turns (js/main.js sets each slot's transform). */
 .hall__row {
+  --door-w: 196px;
+  --door-top: 32px;
   position: relative;
   z-index: 1;
-  width: min(100% - 2.5rem, var(--container));
-  margin-inline: auto;
-  padding-top: 4rem;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(1rem, 3vw, 2.5rem);
+  height: calc(4rem + var(--door-top) + var(--door-w) * 1.8 + var(--floor));
+  perspective: 1500px;
+  perspective-origin: 50% 45%;
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
 }
-@media (max-width: 860px) {
-  .hall__row {
-    width: 100%;
-    padding-inline: 1.25rem;
-    grid-template-columns: none;
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(170px, 46%);
-    gap: 2.25rem;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: 1.25rem;
-    scrollbar-width: none;
-  }
-  .hall__row::-webkit-scrollbar { display: none; }
-  .slot { scroll-snap-align: center; }
-  .door { max-width: 170px; }
-  /* fade the right edge so the next door reads as "more this way" */
-  .hall__row { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 3.5rem), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 3.5rem), transparent); }
-  .hall.is-end .hall__row { -webkit-mask-image: none; mask-image: none; }
-}
+.hall__row.is-dragging { cursor: grabbing; }
+@media (max-width: 860px) { .hall__row { --door-w: 156px; perspective: 1200px; } }
 
-/* phone-only swipe hint, hidden after the first scroll */
-.hall__hint {
-  display: none;
+.slot {
   position: absolute;
-  top: 1.25rem;
-  right: 1.25rem;
-  z-index: 2;
-  font-family: var(--font-mono);
-  font-size: .7rem;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--night-muted);
-  transition: opacity .4s;
+  top: 4rem;
+  left: 50%;
+  width: var(--door-w);
+  margin-left: calc(var(--door-w) / -2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
 }
-.hall__hint span { display: inline-block; color: var(--brass-hi); }
-@media (prefers-reduced-motion: no-preference) { .hall__hint span { animation: nudge 1.6s var(--ease) infinite; } }
-@keyframes nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
-.hall.is-scrolled .hall__hint { opacity: 0; }
-@media (max-width: 860px) { .hall__hint { display: block; } }
+.slot .door { z-index: 2; }
 
-.slot { position: relative; display: flex; flex-direction: column; align-items: center; min-width: 0; }
+/* arrows to turn the room */
+.hall__arrow {
+  position: absolute;
+  top: calc(4rem + var(--door-top, 32px) + 196px * .9);
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid rgba(212, 169, 122, .35);
+  border-radius: 50%;
+  background: rgba(14, 12, 10, .8);
+  color: var(--night-text);
+  cursor: pointer;
+  transition: background-color .2s, border-color .2s, opacity .2s;
+}
+.hall__arrow svg { width: 20px; height: 20px; }
+.hall__arrow:hover { border-color: var(--brass-hi); background: #1D1713; }
+.hall__arrow:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; }
+.hall__arrow:disabled { opacity: .25; cursor: default; }
+.hall__arrow--prev { left: max(1rem, calc((100% - var(--container)) / 2)); }
+.hall__arrow--next { right: max(1rem, calc((100% - var(--container)) / 2)); }
+@media (max-width: 860px) { .hall__arrow { top: auto; bottom: calc(var(--floor) - 58px); width: 40px; height: 40px; } .hall__arrow--prev { left: .75rem; } .hall__arrow--next { right: .75rem; } }
+
+/* ---------- Mascots: each project's own character waits by its door ---------- */
+.mascot {
+  position: absolute;
+  z-index: 3;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.mascot:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 4px; border-radius: 8px; }
+.mascot__sprite {
+  display: block;
+  width: calc(var(--fw) * var(--s) * 1px);
+  height: calc(var(--fh) * var(--s) * 1px);
+  background-image: var(--sheet);
+  background-repeat: no-repeat;
+  background-size: calc(var(--fw) * var(--n) * var(--s) * 1px) calc(var(--fh) * var(--s) * 1px);
+  background-position: calc(var(--f, 0) * var(--fw) * var(--s) * -1px) 0;
+  image-rendering: pixelated;
+}
+/* Mewy sits on the arch */
+.mascot--mewy { --sheet: url("../assets/mascots/mewy.png"); --fw: 12; --fh: 12; --n: 4; --s: 4; left: calc(var(--door-w) * .14); top: calc(var(--door-top) - var(--fh) * var(--s) * 1px + 2px); }
+/* Ping hangs from a bracket on the frame's shoulder */
+.mascot--ping { --sheet: url("../assets/mascots/ping.png"); --fw: 45; --fh: 54; --n: 28; --s: 1.7; right: -58px; top: calc(var(--door-top) + var(--door-w) * .22); }
+/* Shift waits on the doorstep */
+.mascot--shift { --sheet: url("../assets/mascots/shift.png"); --fw: 87; --fh: 35; --n: 11; --s: 1.35; left: -70px; top: calc(var(--door-top) + var(--door-w) * 1.8 - 40px); }
+/* the raccoon peeks out from behind the frame */
+.mascot--raccoon { z-index: 1; width: 78px; left: calc(var(--door-w) - 26px); top: calc(var(--door-top) + var(--door-w) * .78); transform: rotate(10deg); transform-origin: 0 100%; }
+.mascot--raccoon .rc { display: block; width: 100%; height: auto; overflow: visible; }
+/* Reelo sits on the booth's counter */
+.mascot--reelo { --sheet: url("../assets/mascots/reelo.png"); --fw: 21; --fh: 19; --n: 3; --s: 2.6; left: -18px; top: calc(var(--door-top) + var(--door-w) * 1.8 * .66 - 46px); }
+@media (max-width: 860px) {
+  .mascot--mewy { --s: 3.2; }
+  .mascot--ping { --s: 1.3; right: -44px; }
+  .mascot--shift { --s: 1.05; left: -54px; top: calc(var(--door-top) + var(--door-w) * 1.8 - 31px); }
+  .mascot--raccoon { width: 62px; left: calc(var(--door-w) - 20px); }
+  .mascot--reelo { --s: 2.1; left: -14px; top: calc(var(--door-top) + var(--door-w) * 1.8 * .66 - 37px); }
+}
+
+/* what they say when clicked */
+.bubble {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  z-index: 30;
+  padding: .45rem .7rem;
+  border-radius: .6rem;
+  background: var(--night-text);
+  color: #16120F;
+  font-family: var(--font-body);
+  font-size: .8rem;
+  font-weight: 500;
+  line-height: 1.25;
+  white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .45);
+  opacity: 0;
+  transform: translate(-50%, 6px) scale(.96);
+  transition: opacity .2s var(--ease), transform .25s var(--ease);
+  pointer-events: none;
+}
+.bubble::after { content: ""; position: absolute; left: 50%; top: 100%; border: 6px solid transparent; border-top-color: var(--night-text); transform: translateX(-50%); }
+.mascot.is-talking .bubble { opacity: 1; transform: translate(-50%, 0) scale(1); }
+.mascot--raccoon .bubble { left: 30%; transform: translate(-50%, 6px) rotate(-10deg) scale(.96); }
+.mascot--raccoon.is-talking .bubble { transform: translate(-50%, 0) rotate(-10deg) scale(1); }
+
+/* tricks (frame-by-frame art is swapped in main.js; these add the body movement) */
+@media (prefers-reduced-motion: no-preference) {
+  .mascot--mewy.is-trick .mascot__sprite { animation: m-hop .5s var(--ease) 2; }
+  .mascot--shift.is-trick .mascot__sprite { animation: m-roll 1.35s cubic-bezier(.4, 0, .3, 1) both; }
+  .mascot--reelo.is-trick .mascot__sprite { animation: m-spin .9s steps(8) both; }
+  .mascot--raccoon.is-trick .rc-all { animation: rc-flip .9s cubic-bezier(.3, .7, .3, 1) both; }
+  .mascot--raccoon .rc-eyes { transform-origin: center; animation: rc-blink 4.6s infinite; }
+  .mascot--raccoon .rc-tail { transform-origin: 0% 100%; animation: rc-tail 2.6s ease-in-out infinite alternate; }
+}
+@keyframes m-hop { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(-16px); } }
+@keyframes m-roll { 0% { transform: translateX(0); } 45% { transform: translateX(46px); } 100% { transform: translateX(0); } }
+@keyframes m-spin { to { transform: rotate(360deg); } }
+.rc g, .rc path { transform-box: fill-box; }
+.rc-all { transform-origin: 50% 100%; }
+.rc-eyes-closed, .rc-mouth-open { display: none; }
+.mascot--raccoon.is-trick .rc-eyes, .mascot--raccoon.is-trick .rc-mouth-calm { display: none; }
+.mascot--raccoon.is-trick .rc-eyes-closed, .mascot--raccoon.is-trick .rc-mouth-open { display: inline; }
+@keyframes rc-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.08); } }
+@keyframes rc-tail { from { transform: rotate(-7deg); } to { transform: rotate(9deg); } }
+@keyframes rc-flip {
+  0% { transform: translateY(0) rotate(0); }
+  15% { transform: translateY(0) scaleY(.9); }
+  55% { transform: translateY(-34px) rotate(-200deg); }
+  85%, 100% { transform: translateY(0) rotate(-360deg); }
+}
 /* lamp light washing down the wall */
 .slot::before {
   content: "";
@@ -914,6 +1010,84 @@ html.intro-on .reveal-in { animation: none; opacity: 0; }
   background: rgba(255, 214, 102, .7);
 }
 .door--sketch .door__knob { width: 10px; height: 10px; background: #fff; border: 1.6px solid var(--ink); box-shadow: 1.5px 1.5px 0 rgba(29, 35, 64, .3); }
+
+/* Reelo: a cinema ticket booth in the app's colours (cream, brown, red, mustard) */
+.door--booth, .door--booth:focus-visible { border-radius: 8px; }
+.door--booth .door__frame {
+  border-radius: 6px 6px 3px 3px;
+  background: #E8553D;
+  box-shadow: 0 0 0 5px #2B2118, 7px 7px 0 5px #F2B544, 0 34px 60px -18px rgba(0, 0, 0, .9);
+}
+/* film-strip holes down both sides of the lower panel */
+.door--booth .door__frame::after {
+  content: "";
+  position: absolute;
+  top: 70%; bottom: 3%; left: 4%; right: 4%;
+  background:
+    repeating-linear-gradient(180deg, #F5EBDD 0 6px, transparent 6px 12px) left / 7px 100% no-repeat,
+    repeating-linear-gradient(180deg, #F5EBDD 0 6px, transparent 6px 12px) right / 7px 100% no-repeat;
+  opacity: .9;
+}
+.booth__sign {
+  position: absolute;
+  top: 4%; left: 7%; right: 7%;
+  height: 13%;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  background:
+    radial-gradient(circle, #F2B544 1.3px, transparent 1.8px) 2px 2px / 8px 100% repeat-x,
+    radial-gradient(circle, #F2B544 1.3px, transparent 1.8px) 2px calc(100% - 2px) / 8px 6px repeat-x,
+    #2B2118;
+  font-family: "Jersey 15", var(--font-mono);
+  font-size: 30px;
+  line-height: 1;
+  color: #F2B544;
+}
+.booth__window {
+  position: absolute;
+  top: 21%; left: 9%; right: 9%;
+  height: 43%;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #2B2118;
+  box-shadow: 0 0 0 3px #2B2118;
+}
+.booth__window .door__inside { background-position: 18% 0; }
+.booth__shutter {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(180deg, #F5EBDD 0 9px, #D7C3A6 9px 10px, #EDE0CC 10px 11px);
+  box-shadow: inset 0 -6px 0 #B53B2A;
+  transition: transform .6s var(--ease);
+}
+.booth__counter {
+  position: absolute;
+  top: 63.5%; left: 2%; right: 2%;
+  height: 4%;
+  border-radius: 2px;
+  background: #2B2118;
+  box-shadow: inset 0 2px 0 #F2B544, 0 4px 6px rgba(0, 0, 0, .35);
+}
+.booth__ticket {
+  position: absolute;
+  left: 50%; bottom: 12%;
+  padding: 3px 14px 4px;
+  transform: translateX(-50%) rotate(-3deg);
+  background:
+    radial-gradient(circle at 0 50%, #E8553D 5px, transparent 5.5px),
+    radial-gradient(circle at 100% 50%, #E8553D 5px, transparent 5.5px),
+    #F2B544;
+  font-family: "Jersey 15", var(--font-mono);
+  font-size: 18px;
+  line-height: 1;
+  white-space: nowrap;
+  color: #2B2118;
+}
+.door--booth:hover .booth__shutter,
+.door--booth:focus-visible .booth__shutter { transform: translateY(-32%); }
+.door--booth.is-open .booth__shutter { transform: translateY(-100%); }
+.door--booth .door__spill { top: calc(100% + 5px); }
 
 .slot--live .door:hover .door__leaf,
 .slot--live .door:focus-visible .door__leaf { transform: rotateY(26deg); }

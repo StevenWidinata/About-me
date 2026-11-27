@@ -111,8 +111,8 @@ const ID = {
   // projects
   "Things I've built": 'Yang sudah saya buat',
   'Pick a <em>door.</em>': 'Pilih sebuah <em>pintu.</em>',
-  'Each one opens onto something I built. Hover to peek inside, click to walk in.':
-    'Setiap pintu membuka sesuatu yang saya buat. Arahkan kursor untuk mengintip, klik untuk masuk.',
+  'Each one opens onto something I built. Turn the hall to look around, then click a door, or whoever is waiting by it, to walk in.':
+    'Setiap pintu membuka sesuatu yang saya buat. Putar aulanya untuk melihat-lihat, lalu klik sebuah pintu, atau siapa pun yang menunggu di dekatnya, untuk masuk.',
   'Open the door to Mewing Academy': 'Buka pintu ke Mewing Academy',
   'Open the door to ZeroSignal': 'Buka pintu ke ZeroSignal',
   'Coming soon. This door is locked.': 'Segera hadir. Pintu ini masih terkunci.',
@@ -125,6 +125,27 @@ const ID = {
   'Games · Typing': 'Game · Mengetik',
   'Open the door to Sketchy': 'Buka pintu ke Sketchy',
   'Games · Multiplayer': 'Game · Multipemain',
+  'Turn to the previous project': 'Putar ke proyek sebelumnya',
+  'Turn to the next project': 'Putar ke proyek berikutnya',
+  'Open the ticket booth to Reelo': 'Buka loket tiket ke Reelo',
+  'Android app · Habits': 'Aplikasi Android · Kebiasaan',
+  'Mewy, the Mewing Academy cat. Say hi and open the door': 'Mewy, kucing Mewing Academy. Sapa dan buka pintunya',
+  'Ping, the ZeroSignal bat. Say hi and open the door': 'Ping, kelelawar ZeroSignal. Sapa dan buka pintunya',
+  'Shift, the Glitch Type pangolin. Say hi and open the door': 'Shift, trenggiling Glitch Type. Sapa dan buka pintunya',
+  'The Sketchy raccoon. Say hi and open the door': 'Rakun Sketchy. Sapa dan buka pintunya',
+  'Reelo, the film reel. Say hi and open the booth': 'Reelo, si gulungan film. Sapa dan buka loketnya',
+  'Mew! Press start.': 'Meong! Tekan start.',
+  "Hi, I'm Ping. Pick a game, any game.": 'Hai, aku Ping. Pilih game, game apa saja.',
+  'Ready? Type fast.': 'Siap? Mengetik yang cepat.',
+  "Draw badly. I'll judge.": 'Gambar asal saja. Aku yang menilai.',
+  'Roll it!': 'Mulai putar!',
+  'Get the app': 'Unduh aplikasinya',
+  'An Android app that keeps your TikTok streaks alive and counts the reels you watch on TikTok, YouTube Shorts and Instagram, with a pixel mascot that gets tired the more you scroll.':
+    'Aplikasi Android yang menjaga streak TikTok kamu tetap menyala dan menghitung reels yang kamu tonton di TikTok, YouTube Shorts, dan Instagram, dengan maskot pixel yang makin lelah setiap kamu scroll.',
+  'Sends your streak messages for you every night at 00.00': 'Mengirim pesan streak untukmu setiap malam pukul 00.00',
+  'Counts new reels, not swipes, so scrolling back never counts twice': 'Menghitung reels baru, bukan geseran, jadi scroll balik tidak pernah terhitung dua kali',
+  'Four pixel mascots, one for each app, with five moods': 'Empat maskot pixel, satu untuk tiap aplikasi, dengan lima suasana hati',
+  'No internet permission: your data never leaves the phone': 'Tanpa izin internet: datamu tidak pernah keluar dari HP',
 
   'Swipe': 'Geser',
   'More work': 'Karya lainnya',
@@ -154,7 +175,7 @@ const ID = {
   'Built so kids of every ability can take part': 'Dibuat agar anak dengan kemampuan apa pun bisa ikut belajar',
   'A collection of quick arcade games for killing boredom, with real leaderboards. Every score is checked by the server, so nobody can cheat their way to the top.':
     'Kumpulan game arcade singkat untuk mengusir bosan, lengkap dengan papan peringkat sungguhan. Setiap skor diperiksa server, jadi tidak ada yang bisa curang untuk jadi nomor satu.',
-  'Thirteen games, from a full-physics slingshot game to Chess, Sudoku and Brick Breaker': 'Tiga belas game, dari game ketapel dengan fisika penuh sampai Catur, Sudoku, dan Brick Breaker',
+  'Fourteen games, from a full-physics slingshot game to Chess, Sudoku and Brick Breaker': 'Empat belas game, dari game ketapel dengan fisika penuh sampai Catur, Sudoku, dan Brick Breaker',
   'Play Chess, Checkers and Sonar online against a friend': 'Main Catur, Dam, dan Sonar online melawan teman',
   'The server replays every move, so the leaderboard stays fair': 'Server memutar ulang setiap langkah, jadi papan peringkat tetap adil',
   'Play straight away, and sign up only to save scores': 'Langsung main, dan daftar hanya jika ingin menyimpan skor',
